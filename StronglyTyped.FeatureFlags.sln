@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags", "StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj", "{2B7D0BE9-AE6C-45AE-8CC5-ED01B9C66DC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StronglyTyped.WebApi", "StronglyTyped.WebApi\StronglyTyped.WebApi.csproj", "{5742855A-5781-46CB-B337-46430000ABBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.WebApi", "StronglyTyped.WebApi\StronglyTyped.WebApi.csproj", "{5742855A-5781-46CB-B337-46430000ABBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StronglyTyped.FeatureFlags.Generator", "StronglyTyped.FeatureFlags.Generator\StronglyTyped.FeatureFlags.Generator.csproj", "{CDE61355-7C24-4D29-88B8-933B4426176D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{5742855A-5781-46CB-B337-46430000ABBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5742855A-5781-46CB-B337-46430000ABBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5742855A-5781-46CB-B337-46430000ABBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDE61355-7C24-4D29-88B8-933B4426176D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDE61355-7C24-4D29-88B8-933B4426176D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDE61355-7C24-4D29-88B8-933B4426176D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDE61355-7C24-4D29-88B8-933B4426176D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

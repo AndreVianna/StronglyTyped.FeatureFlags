@@ -17,8 +17,9 @@ public sealed class ConfigurationFeatureFlagsProvider : IFeatureFlagProvider {
 
     public void Dispose() { }
 
-    private static FeatureFlag MapSection(IConfigurationSection s)
+    private FeatureFlag MapSection(IConfigurationSection s)
         => new(s.Key,
             Enum.Parse<FeatureFlagType>(s["Type"] ?? "Static", true),
+            Name,
             bool.Parse(s["IsEnabled"] ?? "false"));
 }

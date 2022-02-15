@@ -1,5 +1,5 @@
-﻿global using Microsoft.Extensions.Configuration;
+﻿global using Microsoft.CodeAnalysis;
+global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.Extensions.DependencyInjection.Extensions;
 
 global using StronglyTyped.FeatureFlags.Abstractions;
