@@ -1,38 +1,25 @@
-﻿namespace StronglyTyped.FeatureFlags.Generator;
+﻿using System.Diagnostics;
+
+namespace StronglyTyped.FeatureFlags.Generator;
 
 [Generator]
 public class FeatureFlagsGenerator : IIncrementalGenerator {
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
-        //#if DEBUG
-        //        if (!Debugger.IsAttached) {
-        //            Debugger.Launch();
-        //        }
-        //#endif
+#if DEBUG
+        if (!Debugger.IsAttached) {
+            Debugger.Launch();
+        }
+#endif
         var flagHolders = context.SyntaxProvider
-            .CreateSyntaxProvider(IsFeatureFlagsHolder, GetFeatureFlagsHolderTypeOrDefault)
+            .CreateSyntaxProvider(IsFeatureFlagsHolderAttribute, GetFeatureFlagsHolderTypeOrDefault)
             .Where(type => type is not null)
             .Collect();
 
-        context.RegisterSourceOutput(flagHolders, GenerateCode!);
+        context.RegisterSourceOutput(flagHolders, GenerateFiles!);
     }
 
-    //public class FeatureFlagsGenerator : IIncrementalGenerator {
-    //    public void Initialize(IncrementalGeneratorInitializationContext context) {
-    //#if DEBUG
-    //        if (!Debugger.IsAttached) {
-    //            Debugger.Launch();
-    //        }
-    //#endif
-    //        var flagHolders = context.SyntaxProvider
-    //            .CreateSyntaxProvider(IsFeatureFlagsHolder, GetFeatureFlagsHolderTypeOrDefault)
-    //            .Where(type => type is not null)
-    //            .Collect();
-
-    //        context.RegisterSourceOutput(flagHolders, GenerateCode!);
-    //    }
-
-    private static bool IsFeatureFlagsHolder(SyntaxNode syntaxNode, CancellationToken cancellationToken) {
+    private static bool IsFeatureFlagsHolderAttribute(SyntaxNode syntaxNode, CancellationToken cancellationToken) {
         if (syntaxNode is not AttributeSyntax attribute) return false;
         var name = ExtractName(attribute.Name);
         return name is "FeatureFlagsHolder" or "FeatureFlagsHolderAttribute";
@@ -52,15 +39,14 @@ public class FeatureFlagsGenerator : IIncrementalGenerator {
 
     private static ITypeSymbol? GetFeatureFlagsHolderTypeOrDefault(GeneratorSyntaxContext context, CancellationToken cancellationToken) {
         var attributeSyntax = (AttributeSyntax)context.Node;
-        if (attributeSyntax.Parent?.Parent is not ClassDeclarationSyntax classDeclaration)
-            return null;
-
-        var type = context.SemanticModel.GetDeclaredSymbol(classDeclaration) as ITypeSymbol;
-
-        return type is null || !IsFlagHolder(type) ? null : type;
+        return attributeSyntax.Parent?.Parent is ClassDeclarationSyntax classDeclaration &&
+            context.SemanticModel.GetDeclaredSymbol(classDeclaration) is ITypeSymbol type &&
+            HasFlagsHolderAttribute(type)
+                ? type
+                : null;
     }
 
-    private static bool IsFlagHolder(ISymbol type) {
+    private static bool HasFlagsHolderAttribute(ISymbol type) {
         var attributes = type.GetAttributes();
         foreach (var attributeData in attributes) {
             if (attributeData.AttributeClass?.ToString() == "StronglyTyped.FeatureFlags.FeatureFlagsHolderAttribute") return true;
@@ -68,24 +54,28 @@ public class FeatureFlagsGenerator : IIncrementalGenerator {
         return false;
     }
 
-    private static void GenerateCode(SourceProductionContext context, ImmutableArray<ITypeSymbol> flagHolders) {
-        if (flagHolders.IsDefaultOrEmpty)
+    private static void GenerateFiles(SourceProductionContext context, ImmutableArray<ITypeSymbol> flagsHolders) {
+        if (flagsHolders.IsDefaultOrEmpty)
             return;
 
-        var distinctTypes = flagHolders.Distinct(SymbolEqualityComparer.Default).Cast<ITypeSymbol>().ToArray();
-        foreach (var type in distinctTypes) {
-            var typeNamespace = type!.ContainingNamespace.IsGlobalNamespace
-                ? null
-                : type.ContainingNamespace.ToString();
-            var code = GenerateCode(typeNamespace, type);
-            var separator = typeNamespace is null ? null : ".";
-            context.AddSource($"{typeNamespace}{separator}{type.Name}.g.cs", code);
+        var distinctFlagsHolders = flagsHolders.Distinct(SymbolEqualityComparer.Default).Cast<ITypeSymbol>().ToArray();
+        foreach (var flagsHolder in distinctFlagsHolders) {
+            GenerateFile(context, flagsHolder);
         }
     }
 
-    private static string GenerateCode(string? typeNamespace, ITypeSymbol type) {
-        var typeName = type.Name;
-        var items = GetItemNames(type);
+    private static void GenerateFile(SourceProductionContext context, ITypeSymbol flagsHolder) {
+        var typeNamespace = flagsHolder!.ContainingNamespace.IsGlobalNamespace
+            ? null
+            : flagsHolder.ContainingNamespace.ToString();
+        var code = GenerateCode(context, typeNamespace, flagsHolder);
+        context.AddSource($"{flagsHolder.Name}.g.cs", code);
+    }
+
+    private static string GenerateCode(SourceProductionContext context, string? typeNamespace, ITypeSymbol flagsHolder) {
+        Compilation.GetSemanticModel();
+        var typeName = flagsHolder.Name;
+        var items = GetItemNames(context, flagsHolder);
 
         return
 @$"// <auto-generated />
@@ -102,18 +92,20 @@ using System.Collections.Generic;
 ")}";
     }
 
-    private static IEnumerable<string?> GetItemNames(ITypeSymbol type) {
-        return type.GetMembers()
-            .Select(m => {
-                if (!m.IsStatic ||
-                    m.DeclaredAccessibility != Accessibility.Public ||
-                    m is not IFieldSymbol field)
-                    return null;
+    private static IEnumerable<string?> GetItemNames(SourceProductionContext context, ITypeSymbol flagsHolder) {
+        return flagsHolder.GetMembers()
+            .Where(m => m.IsStatic &&
+                    m.DeclaredAccessibility != Accessibility.Public &&
+                    m is IFieldSymbol field &&
+                    IsArrayOfFeatureAndProvider(field.Type))
+            .Cast<IFieldSymbol>()
+            .Select(f => TransformField(context, f));
+    }
 
-                return SymbolEqualityComparer.Default.Equals(field.Type, type)
-                    ? field.Name
-                    : null;
-            })
-            .Where(field => field is not null);
+    private static bool IsArrayOfFeatureAndProvider(ITypeSymbol typeSymbol)
+        => typeSymbol.ToString() == "(string Feature, string Provider)[]";
+
+    private static string TransformField(SourceProductionContext context, IFieldSymbol fieldSymbol) {
+        return fieldSymbol.Name;
     }
 }

@@ -20,6 +20,5 @@ public sealed class ConfigurationFeatureFlagsProvider : IFeatureFlagProvider {
     private FeatureFlag MapSection(IConfigurationSection s)
         => new(s.Key,
             Enum.Parse<FeatureFlagType>(s["Type"] ?? "Static", true),
-            Name,
             bool.Parse(s["IsEnabled"] ?? "false"));
 }
