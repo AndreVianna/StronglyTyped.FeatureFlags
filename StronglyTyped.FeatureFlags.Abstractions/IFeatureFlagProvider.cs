@@ -2,6 +2,6 @@
 
 public interface IFeatureFlagProvider : IDisposable {
     string Name { get; }
-    IFeatureFlag GetByName(string featureName);
-    IEnumerable<IFeatureFlag> GetAll();
+    IFeatureFlagEntity GetByName(string featureName);
+    IEnumerable<IFeatureFlagEntity> GetAll();
 }

@@ -1,11 +1,23 @@
-﻿using StronglyTyped.FeatureFlags;
-using StronglyTyped.FeatureFlags.Abstractions;
+﻿using StronglyTyped.FeatureFlags.Abstractions;
 
 namespace StronglyTyped.FeatureFlags.Consumer;
 
+public partial interface IFeatureFlagsAccessor {
+
+}
+
 [FeatureFlagsHolder]
-public static partial class FeatureFlags {
-    private static readonly (string Feature, string Provider)[] _flags = {
-        ("SaluteUniverse", "Configuration")
+public partial class FeatureFlags : IFeatureFlagsAccessor {
+    private static readonly string[] _flags = {
+        "SaluteUniverse",
+        "OtherFeature"
     };
+
+    private readonly IFeatureFlagsFactory _featureFlagsFactory;
+
+    public FeatureFlags(IFeatureFlagsFactory featureFlagsFactory) {
+        _featureFlagsFactory = featureFlagsFactory;
+    }
+
+    public IFeatureFlag SaluteUniverse => _featureFlagsFactory.For(nameof(SaluteUniverse));
 }

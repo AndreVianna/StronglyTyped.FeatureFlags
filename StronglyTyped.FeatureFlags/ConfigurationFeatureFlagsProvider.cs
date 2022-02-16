@@ -9,11 +9,11 @@ public sealed class ConfigurationFeatureFlagsProvider : IFeatureFlagProvider {
 
     public string Name => "Configuration";
 
-    public IEnumerable<IFeatureFlag> GetAll() {
+    public IEnumerable<IFeatureFlagEntity> GetAll() {
         return _config.GetSection("Features").GetChildren().Select(MapSection).ToArray();
     }
 
-    public IFeatureFlag GetByName(string featureName) => throw new NotImplementedException();
+    public IFeatureFlagEntity GetByName(string featureName) => throw new NotImplementedException();
 
     public void Dispose() { }
 

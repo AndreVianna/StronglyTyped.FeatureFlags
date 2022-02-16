@@ -2,10 +2,14 @@
 
 using System.Collections.Generic;
 
-namespace StronglyTyped.FeatureFlags.Consumer
+namespace StronglyTyped.FeatureFlags.Consumer;
+
+partial interface IFeatureFlagsAccessor
 {
-   partial class FeatureFlags
-   {
-   // Items => _flags 
-   }
+
+}
+
+partial class FeatureFlags
+{
+// Items => SaluteUniverse,OtherFeature 
 }
