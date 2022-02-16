@@ -1,6 +1,6 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions;
 
-public enum FeatureFlagType {
+public enum FlagType {
     Static,
     Transient
 }

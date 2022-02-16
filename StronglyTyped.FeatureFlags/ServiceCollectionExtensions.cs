@@ -3,10 +3,10 @@
 namespace StronglyTyped.FeatureFlags;
 
 public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddFeatureFlags(this IServiceCollection services, Action<IFeatureFlagsOptions> registerProviders) {
+    public static IServiceCollection AddFeatureFlags(this IServiceCollection services, Action<IFlagsFactoryOptions> configure) {
         var factory = new FeatureFlagsFactory(services);
-        registerProviders(factory);
-        services.AddSingleton<IFeatureFlagsFactory>(_ => factory);
+        configure(factory);
+        services.AddSingleton<IFlagsFactory>(_ => factory);
         return services;
     }
 }

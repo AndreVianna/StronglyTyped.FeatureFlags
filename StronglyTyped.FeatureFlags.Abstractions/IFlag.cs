@@ -1,5 +1,5 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions;
 
-public interface IFeatureFlag {
+public interface IFlag {
     bool IsEnabled { get; }
 }

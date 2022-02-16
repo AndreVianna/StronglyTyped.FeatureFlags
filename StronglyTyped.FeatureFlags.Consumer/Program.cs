@@ -7,7 +7,7 @@ using StronglyTyped.FeatureFlags.Consumer;
 
 var serviceProvider = CreateServiceProvider();
 
-var flags = serviceProvider.GetRequiredService<IFeatureFlags>();
+var flags = serviceProvider.GetRequiredService<IFeatureAccessor>();
 if (flags.SaluteUniverse.IsEnabled) Console.WriteLine("Hello Universe!");
 else Console.WriteLine("Hello, World!");
 
@@ -19,8 +19,8 @@ static IServiceProvider CreateServiceProvider() {
         .Build();
 
     services.AddSingleton<IConfiguration>(_ => config);
-    services.AddFeatureFlags(opt => opt.AddProvider<ConfigurationFeatureFlagsProvider>());
-    services.AddSingleton<IFeatureFlags, FeatureFlags>();
+    services.AddFeatureFlags(opt => opt.AddProvider<ConfigurationFeatureProvider>());
+    services.AddSingleton<IFeatureAccessor, FeatureAccessor>();
 
     return services.BuildServiceProvider(true).CreateScope().ServiceProvider;
 }

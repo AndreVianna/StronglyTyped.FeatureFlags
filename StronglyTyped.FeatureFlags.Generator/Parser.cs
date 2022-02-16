@@ -2,7 +2,7 @@
 
 
 internal class Parser {
-    private const string _flagsHolderAttribute = "StronglyTyped.FeatureFlags.FeatureFlagsHolderAttribute";
+    private const string _flagsSelectorAttribute = "StronglyTyped.FeatureFlags.FeatureFlagsSelectorAttribute";
 
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
@@ -14,7 +14,7 @@ internal class Parser {
             foreach (var attributeSyntax in attributeListSyntax.Attributes) {
                 var methodSymbol = context.SemanticModel.GetSymbolInfo(attributeSyntax).Symbol as IMethodSymbol;
                 if (methodSymbol is not null &&
-                    methodSymbol.ContainingType.ToDisplayString() == _flagsHolderAttribute) {
+                    methodSymbol.ContainingType.ToDisplayString() == _flagsSelectorAttribute) {
                     return classDeclarationSyntax;
                 }
             }
@@ -22,13 +22,13 @@ internal class Parser {
         return null;
     }
 
-    public IReadOnlyList<FlagsHolder> GetFlagsHolderClasses(IEnumerable<ClassDeclarationSyntax> classes, CancellationToken cancellationToken) {
-        var results = new List<FlagsHolder>();
+    public IReadOnlyList<FlagsSelector> FindFlagsSelectorClasses(IEnumerable<ClassDeclarationSyntax> classes, CancellationToken cancellationToken) {
+        var results = new List<FlagsSelector>();
         foreach (var classDeclaration in classes.Distinct().GroupBy(x => x.SyntaxTree).SelectMany(i => i)) {
             cancellationToken.ThrowIfCancellationRequested();
             var (@namespace, name) = ExtractClassDefinition(classDeclaration);
             if (@namespace is null) continue;
-            var result = new FlagsHolder(@namespace, name);
+            var result = new FlagsSelector(@namespace, name);
             foreach (var member in classDeclaration.Members) {
                 if (member is not FieldDeclarationSyntax field) continue;
                 var decalration = field.Declaration;
@@ -43,7 +43,7 @@ internal class Parser {
                 foreach (var arrayItem in arrayItems) {
                     if (arrayItem is not LiteralExpressionSyntax literalSyntax) continue;
                     var feature = literalSyntax.ChildTokens().First().ValueText;
-                    result.Featrues.Add(feature);
+                    result.Features.Add(feature);
                 }
             }
             results.Add(result);
