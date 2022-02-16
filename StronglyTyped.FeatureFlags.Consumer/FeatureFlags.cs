@@ -1,23 +1,9 @@
-﻿using StronglyTyped.FeatureFlags.Abstractions;
-
-namespace StronglyTyped.FeatureFlags.Consumer;
-
-public partial interface IFeatureFlagsAccessor {
-
-}
+﻿namespace StronglyTyped.FeatureFlags.Consumer;
 
 [FeatureFlagsHolder]
-public partial class FeatureFlags : IFeatureFlagsAccessor {
-    private static readonly string[] _flags = {
+public partial class FeatureFlags {
+    public static readonly string[] Features = {
         "SaluteUniverse",
         "OtherFeature"
     };
-
-    private readonly IFeatureFlagsFactory _featureFlagsFactory;
-
-    public FeatureFlags(IFeatureFlagsFactory featureFlagsFactory) {
-        _featureFlagsFactory = featureFlagsFactory;
-    }
-
-    public IFeatureFlag SaluteUniverse => _featureFlagsFactory.For(nameof(SaluteUniverse));
 }

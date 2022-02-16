@@ -3,12 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using StronglyTyped.FeatureFlags;
-using StronglyTyped.FeatureFlags.Abstractions;
+using StronglyTyped.FeatureFlags.Consumer;
 
 var serviceProvider = CreateServiceProvider();
 
-var flags = serviceProvider.GetRequiredService<IFeatureFlagsFactory>();
-if (flags.For("SaluteUniverse").IsEnabled) Console.WriteLine("Hello Universe!");
+var flags = serviceProvider.GetRequiredService<IFeatureFlags>();
+if (flags.SaluteUniverse.IsEnabled) Console.WriteLine("Hello Universe!");
 else Console.WriteLine("Hello, World!");
 
 static IServiceProvider CreateServiceProvider() {
@@ -20,6 +20,7 @@ static IServiceProvider CreateServiceProvider() {
 
     services.AddSingleton<IConfiguration>(_ => config);
     services.AddFeatureFlags(opt => opt.AddProvider<ConfigurationFeatureFlagsProvider>());
+    services.AddSingleton<IFeatureFlags, FeatureFlags>();
 
     return services.BuildServiceProvider(true).CreateScope().ServiceProvider;
 }
