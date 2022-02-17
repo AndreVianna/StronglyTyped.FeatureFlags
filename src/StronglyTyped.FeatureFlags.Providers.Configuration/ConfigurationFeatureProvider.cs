@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags;
+﻿namespace StronglyTyped.FeatureFlags.Providers.Configuration;
 
 public sealed class ConfigurationFeatureProvider : IFeatureProvider {
     private readonly IConfiguration _config;

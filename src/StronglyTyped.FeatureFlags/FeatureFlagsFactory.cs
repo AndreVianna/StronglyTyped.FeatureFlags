@@ -32,7 +32,7 @@ public sealed class FeatureFlagsFactory : IFlagsFactory, IFlagsFactoryOptions, I
             ? staticFlag
             : _featureProviders.TryGetValue(name, out var providerName)
                 ? _providers[providerName].GetByName(name)
-                : Feature.GetNullFlagFor(name);
+                : Flag.NullFlag;
     }
 
     public void Dispose() {

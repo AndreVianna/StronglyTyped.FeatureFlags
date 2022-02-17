@@ -16,8 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StronglyTyped.FeatureFlags.Generator\StronglyTyped.FeatureFlags.Generator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-    <ProjectReference Include="..\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj" />
+    <ProjectReference Include="..\..\gen\StronglyTyped.FeatureFlags.Generator\StronglyTyped.FeatureFlags.Generator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
+    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj" />
   </ItemGroup>
 
 </Project>
