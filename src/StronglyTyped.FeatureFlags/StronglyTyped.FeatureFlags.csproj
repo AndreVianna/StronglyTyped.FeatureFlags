@@ -39,14 +39,27 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <!--<PackageReference Include="StronglyTyped.FeatureFlags.Abstractions" Version="0.1.0-rc1" />-->
-  </ItemGroup>
+  <Choose>
+    <When Condition=" '$(Configuration)'=='Debug' ">
+      <ItemGroup Condition="'$(Configuration)'=='Debug'">
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+      </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
-  </ItemGroup>
+      <ItemGroup>
+        <ProjectReference Include="..\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <Choose>
+    <When Condition=" '$(Configuration)'=='Release' ">
+      <ItemGroup Condition="'$(Configuration)'=='Debug'">
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+        <PackageReference Include="StronglyTyped.FeatureFlags.Abstractions" Version="0.1.0-rc1" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
 </Project>
