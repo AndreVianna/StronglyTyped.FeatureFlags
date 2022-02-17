@@ -1,8 +1,8 @@
 # StronglyTyped.FeatureFlags
 
-Main: [![Buid Status Master](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/andrevianna/SpecFlow.Assist.Complex/actions)
+Main: [![Buid Status Master](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions)
 
-Development: [![Buid Status Development](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/andrevianna/SpecFlow.Assist.Complex/actions)
+Development: [![Buid Status Development](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/andrevianna/StronglyTyped.FeatureFlags/actions)
 
 The **Complex.SpecFlow.Assist** package provides support to feature flags, also including a way to auto-generate a class with properties corresponding to each feature.
 It allows you to use dependency injection to register multiple providers for the flags.
