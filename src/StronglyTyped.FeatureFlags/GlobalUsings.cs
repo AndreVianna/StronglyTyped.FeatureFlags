@@ -1,3 +1,3 @@
 ﻿global using Microsoft.Extensions.DependencyInjection;
 
-global using StronglyTyped.FeatureFlags.Abstractions;
+global using StronglyTyped.FeatureFlags;

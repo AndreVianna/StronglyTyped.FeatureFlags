@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Abstractions;
+﻿namespace StronglyTyped.FeatureFlags;
 
 public interface IFeatureProvider : IDisposable {
     string Name { get; }

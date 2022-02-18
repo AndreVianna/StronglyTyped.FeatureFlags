@@ -34,7 +34,7 @@ internal class Emitter {
     private void GenInterface(FlagsSelector flagsSelector) {
         _builder.Append("" +
 @$"
-using StronglyTyped.FeatureFlags.Abstractions;
+using StronglyTyped.FeatureFlags;
 
 namespace {flagsSelector.Namespace};
 
@@ -56,7 +56,7 @@ public interface I{flagsSelector.Name}
     private void GenClass(FlagsSelector flagsSelector) {
         _builder.Append("" +
 @$"
-using StronglyTyped.FeatureFlags.Abstractions;
+using StronglyTyped.FeatureFlags;
 
 namespace {flagsSelector.Namespace};
 

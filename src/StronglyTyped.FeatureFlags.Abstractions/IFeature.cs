@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Abstractions;
+﻿namespace StronglyTyped.FeatureFlags;
 
 public interface IFeature : IFlag {
     string Name { get; }

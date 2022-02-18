@@ -13,12 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\gen\StronglyTyped.FeatureFlags.Generator\StronglyTyped.FeatureFlags.Generator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
-    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj" />
+    <PackageReference Include="StronglyTyped.FeatureFlags" Version="0.1.0-rc1" />
+    <PackageReference Include="StronglyTyped.FeatureFlags.Providers.Configuration" Version="0.1.0-rc1" />
   </ItemGroup>
 
 </Project>

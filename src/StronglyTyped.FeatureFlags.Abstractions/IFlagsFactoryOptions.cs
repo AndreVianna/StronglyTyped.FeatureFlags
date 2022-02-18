@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace StronglyTyped.FeatureFlags.Abstractions;
+﻿namespace StronglyTyped.FeatureFlags;
 
 public interface IFlagsFactoryOptions {
     void AddProvider<TProvider>() where TProvider : class, IFeatureProvider;
