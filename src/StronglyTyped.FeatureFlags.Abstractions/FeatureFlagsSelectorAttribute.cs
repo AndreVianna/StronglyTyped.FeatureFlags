@@ -1,5 +1,4 @@
 ﻿namespace StronglyTyped.FeatureFlags;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class FeatureFlagsSelectorAttribute : Attribute {
-}
+public class FeatureFlagsSelectorAttribute : Attribute { }
