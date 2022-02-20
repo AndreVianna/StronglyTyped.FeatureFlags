@@ -2,6 +2,6 @@
 
 public interface IFeatureProvider : IDisposable {
     string Name { get; }
-    IFeature GetByName(string featureName);
+    IFeature? GetByName(string featureName);
     IEnumerable<IFeature> GetAll();
 }

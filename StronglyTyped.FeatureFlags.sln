@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
+		Repack.cmd = Repack.cmd
 		RepackAll.cmd = RepackAll.cmd
 	EndProjectSection
 EndProject
@@ -27,9 +28,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.SourceGeneration", "gen\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj", "{7A78CC97-6A32-426C-8C89-AE8C12C280E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StronglyTyped.FeatureFlags.Abstractions.Tests", "tests\StronglyTyped.FeatureFlags.Abstractions.Tests\StronglyTyped.FeatureFlags.Abstractions.Tests.csproj", "{74E3461B-FDA7-4B22-87A6-C684C4A408AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.Abstractions.Tests", "tests\StronglyTyped.FeatureFlags.Abstractions.Tests\StronglyTyped.FeatureFlags.Abstractions.Tests.csproj", "{74E3461B-FDA7-4B22-87A6-C684C4A408AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StronglyTyped.FeatureFlags.Tests", "tests\StronglyTyped.FeatureFlags.Tests\StronglyTyped.FeatureFlags.Tests.csproj", "{487F55DB-7A98-455E-B3A4-42CA5DFE6F73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.Tests", "tests\StronglyTyped.FeatureFlags.Tests\StronglyTyped.FeatureFlags.Tests.csproj", "{487F55DB-7A98-455E-B3A4-42CA5DFE6F73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

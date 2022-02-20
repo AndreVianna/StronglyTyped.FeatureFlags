@@ -1,13 +1,10 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions.Tests;
 
 public class FlagTests {
-    private static Flag CreateFlag()
-        => new(true);
-
     [Fact]
     public void Flag_Properties_Work() {
         // Arrange
-        var flag = CreateFlag();
+        var flag = new Flag(true);
 
         // Act
         flag = flag with {
@@ -19,12 +16,12 @@ public class FlagTests {
     }
 
     [Fact]
-    public void NullFlag_Work() {
-        // Act
-        var flag = Flag.NullFlag;
+    public void NullFlag_Properties_Work() {
+        // Arrange
+        var flag = new NullFlag();
 
         // Assert
-        flag.IsEnabled.Should().BeFalse();
+        flag.IsEnabled.Should().Be(false);
     }
 }
 

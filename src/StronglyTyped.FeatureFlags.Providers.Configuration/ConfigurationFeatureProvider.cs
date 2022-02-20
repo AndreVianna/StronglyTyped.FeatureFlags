@@ -13,11 +13,11 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
         return _config.GetSection("Features").GetChildren().Select(MapSection).ToArray();
     }
 
-    public IFeature GetByName(string featureName) => throw new NotImplementedException();
+    public IFeature? GetByName(string featureName) => MapSection(_config.GetSection("Features").GetSection(featureName));
 
     public void Dispose() { }
 
-    private Feature MapSection(IConfigurationSection s)
+    private static Feature MapSection(IConfigurationSection s)
         => new(s.Key,
             Enum.TryParse<FlagType>(s["Type"], true, out var type) ? type : FlagType.Static,
             (bool.TryParse(s.Value, out var isEnabled) && isEnabled) || (bool.TryParse(s["IsEnabled"] ?? "false", out isEnabled) && isEnabled));

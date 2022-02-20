@@ -2,169 +2,97 @@
 
 public static class FlagsExtensions {
     #region When enabled
-    public static void IfEnabledDo(this IFlag flag, Action doThis) {
+    public static void Do(this IFlag flag, Action doThis) {
         if (flag.IsEnabled) doThis();
     }
 
-    public static void IfEnabledDo(this IFlag flag, Action doThis, Action doThat) {
+    public static void Do(this IFlag flag, Action doThis, Action doThat) {
         if (flag.IsEnabled) doThis();
         else doThat();
     }
 
-    public static T IfEnabledGetOrDefault<T>(this IFlag flag, T @this, T @default = default!) {
+    public static T GetOrDefault<T>(this IFlag flag, T @this) {
         return flag.IsEnabled
             ? @this
-            : @default;
+            : default!;
     }
 
-    public static T IfEnabledGet<T>(this IFlag flag, T @this, Func<T> getThat) {
+    public static T GetOrDefault<T>(this IFlag flag, Func<T> getThis) {
+        return flag.IsEnabled
+            ? getThis()
+            : default!;
+    }
+
+    public static T Get<T>(this IFlag flag, T @this, T that) {
+        return flag.IsEnabled
+            ? @this
+            : that;
+    }
+
+    public static T Get<T>(this IFlag flag, T @this, Func<T> getThat) {
         return flag.IsEnabled
             ? @this
             : getThat();
     }
 
-    public static T IfEnabledGetOrDefault<T>(this IFlag flag, Func<T> getThis, T @default = default!) {
+    public static T Get<T>(this IFlag flag, Func<T> getThis, T that) {
         return flag.IsEnabled
             ? getThis()
-            : @default;
+            : that;
     }
 
-    public static T IfEnabledGet<T>(this IFlag flag, Func<T> getThis, Func<T> getThat) {
+    public static T Get<T>(this IFlag flag, Func<T> getThis, Func<T> getThat) {
         return flag.IsEnabled
-            ? getThis()
-            : getThat();
-    }
-    #endregion
-
-    #region When disabled
-    public static void IfDisabledDo(this IFlag flag, Action doThis) {
-        if (!flag.IsEnabled) doThis();
-    }
-
-    public static void IfDisabledDo(this IFlag flag, Action doThis, Action doThat) {
-        if (!flag.IsEnabled) doThis();
-        else doThat();
-    }
-
-    public static T IfDisabledGetOrDefault<T>(this IFlag flag, T @this, T @default = default!) {
-        return !flag.IsEnabled
-            ? @this
-            : @default;
-    }
-
-    public static T IfDisabledGet<T>(this IFlag flag, T @this, Func<T> getThat) {
-        return !flag.IsEnabled
-            ? @this
-            : getThat();
-    }
-    public static T IfDisabledGetOrDefault<T>(this IFlag flag, Func<T> getThis, T @default = default!) {
-        return !flag.IsEnabled
-            ? getThis()
-            : @default;
-    }
-
-    public static T IfDisabledGet<T>(this IFlag flag, Func<T> getThis, Func<T> getThat) {
-        return !flag.IsEnabled
             ? getThis()
             : getThat();
     }
     #endregion
 
     #region When enabled async
-    public static Task IfEnabledDoAsync(this IFlag flag, Task doThisAsync) {
+    public static Task DoAsync(this IFlag flag, Func<Task> doThisAsync) {
         return flag.IsEnabled
-            ? doThisAsync
+            ? doThisAsync()
             : Task.CompletedTask;
     }
 
-    public static Task IfEnabledDoAsync(this IFlag flag, Task doThisAsync, Task doThatAsync) {
+    public static Task DoAsync(this IFlag flag, Func<Task> doThisAsync, Func<Task> doThatAsync) {
         return flag.IsEnabled
-            ? doThisAsync
-            : doThatAsync;
+            ? doThisAsync()
+            : doThatAsync();
     }
 
-    public static Task<T> IfEnabledGetOrDefaultAsync<T>(this IFlag flag, Task<T> getThisAsync, T that = default!) {
+    public static Task DoAsync(this IFlag flag, Action doThis, Func<Task> doThatAsync) {
         return flag.IsEnabled
-            ? getThisAsync
-            : Task.FromResult(that);
+            ? Task.Run(doThis)
+            : doThatAsync();
     }
 
-    public static Task<T> IfEnabledGetAsync<T>(this IFlag flag, Task<T> getThisAsync, Task<T> getThatAsync) {
+    public static Task DoAsync(this IFlag flag, Func<Task> doThisAsync, Action doThat) {
         return flag.IsEnabled
-            ? getThisAsync
-            : getThatAsync;
+            ? doThisAsync()
+            : Task.Run(doThat);
     }
 
-    public static Task<T> IfEnabledGetAsync<T>(this IFlag flag, Task<T> getThisAsync, Func<Task<T>> getThatAsync) {
+    public static Task<T> GetOrDefaultAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync) {
         return flag.IsEnabled
-            ? getThisAsync
+            ? getThisAsync()
+            : Task.FromResult(default(T)!);
+    }
+
+    public static Task<T> GetAsync<T>(this IFlag flag, T @this, Func<Task<T>> getThatAsync) {
+        return flag.IsEnabled
+            ? Task.FromResult(@this)
             : getThatAsync();
     }
 
-    public static Task<T> IfEnabledGetOrDefaultAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, T that = default!) {
+    public static Task<T> GetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, T that) {
         return flag.IsEnabled
             ? getThisAsync()
             : Task.FromResult(that);
     }
 
-    public static Task<T> IfEnabledGetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Task<T> getThatAsync) {
+    public static Task<T> GetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Func<Task<T>> getThatAsync) {
         return flag.IsEnabled
-            ? getThisAsync()
-            : getThatAsync;
-    }
-
-    public static Task<T> IfEnabledGetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Func<Task<T>> getThatAsync) {
-        return flag.IsEnabled
-            ? getThisAsync()
-            : getThatAsync();
-    }
-    #endregion
-
-    #region When disabled async
-    public static Task IfDisabledDoAsync(this IFlag flag, Task doThisAsync) {
-        return !flag.IsEnabled
-            ? doThisAsync
-            : Task.CompletedTask;
-    }
-
-    public static Task IfDisabledDoAsync(this IFlag flag, Task doThisAsync, Task doThatAsync) {
-        return !flag.IsEnabled
-            ? doThisAsync
-            : doThatAsync;
-    }
-
-    public static Task<T> IfDisabledGetOrDefaultAsync<T>(this IFlag flag, Task<T> getThisAsync, T that = default!) {
-        return !flag.IsEnabled
-            ? getThisAsync
-            : Task.FromResult(that);
-    }
-
-    public static Task<T> IfDisabledGetAsync<T>(this IFlag flag, Task<T> getThisAsync, Task<T> getThatAsync) {
-        return !flag.IsEnabled
-            ? getThisAsync
-            : getThatAsync;
-    }
-
-    public static Task<T> IfDisabledGetAsync<T>(this IFlag flag, Task<T> getThisAsync, Func<Task<T>> getThatAsync) {
-        return !flag.IsEnabled
-            ? getThisAsync
-            : getThatAsync();
-    }
-
-    public static Task<T> IfDisabledGetOrDefaultAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, T that = default!) {
-        return !flag.IsEnabled
-            ? getThisAsync()
-            : Task.FromResult(that);
-    }
-
-    public static Task<T> IfDisabledGetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Task<T> getThatAsync) {
-        return !flag.IsEnabled
-            ? getThisAsync()
-            : getThatAsync;
-    }
-
-    public static Task<T> IfDisabledGetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Func<Task<T>> getThatAsync) {
-        return !flag.IsEnabled
             ? getThisAsync()
             : getThatAsync();
     }

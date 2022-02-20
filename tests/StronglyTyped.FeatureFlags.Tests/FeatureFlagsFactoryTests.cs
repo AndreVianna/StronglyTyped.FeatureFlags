@@ -1,49 +1,128 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
 
-using StronglyTyped.FeatureFlags;
+namespace StronglyTyped.FeatureFlags.Tests;
 
-using System;
+public class FeatureFlagsFactoryTests {
 
-using Xunit;
+    private readonly ProcessSpy _processSpy = new();
+    private readonly IServiceCollection _serviceCollection = Substitute.For<ServiceCollection>();
 
-namespace StronglyTyped.FeatureFlags.Tests {
-    public class FeatureFlagsFactoryTests {
-        [Fact]
-        public void AddProvider_StateUnderTest_ExpectedBehavior() {
-            // Arrange
-            var factory = new FeatureFlagsFactory(TODO);
+    public FeatureFlagsFactoryTests() {
+        _serviceCollection.AddSingleton(_processSpy);
+    }
 
-            // Act
-            factory.AddProvider();
+    private FeatureFlagsFactory CreateFactory()
+        => new(_serviceCollection);
 
-            // Assert
-            Assert.True(false);
-        }
+    [Fact]
+    public void AddProvider_ForNewProvider_RegistersTheProvider() {
+        // Arrange
+        var factory = CreateFactory();
+        _processSpy.ClearCalls();
 
-        [Fact]
-        public void For_StateUnderTest_ExpectedBehavior() {
-            // Arrange
-            var factory = new FeatureFlagsFactory(TODO);
-            string name = null;
+        // Act
+        factory.AddProvider<FakeProvider>();
 
-            // Act
-            var result = factory.For(
-                name);
+        // Assert
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "Name", "Name", "GetAll", "Name", "Name", "Name", "Dispose");
+    }
 
-            // Assert
-            Assert.True(false);
-        }
+    [Fact]
+    public void AddProvider_ForRegisteredProvider_IgnoresDuplicatedProvider() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
 
-        [Fact]
-        public void Dispose_StateUnderTest_ExpectedBehavior() {
-            // Arrange
-            var factory = new FeatureFlagsFactory(TODO);
+        // Act
+        factory.AddProvider<FakeProvider>();
 
-            // Act
-            factory.Dispose();
+        // Assert
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "Name", "Dispose");
+    }
 
-            // Assert
-            Assert.True(false);
-        }
+
+    [Fact]
+    public void AddProvider_ForProviderWithDuplicatedFeature_Throws() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
+
+        // Act
+        var action = () => factory.AddProvider<FakeProviderWithDuplicatedFeature>();
+
+        // Assert
+        action.Should().Throw<InvalidOperationException>()
+            .WithMessage("Duplicated feature flag definition found in 'FakeProvider' and 'FakeProviderWithDuplicatedFeature' providers.");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "Name", "Name", "GetAll", "Name", "Dispose");
+    }
+
+    [Fact]
+    public void For_ExistingStaticFeature_ReturnsFlag_WithoutCallingProvider() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
+        const string name = "Feature1";
+
+        // Act
+        var result = factory.For(name);
+
+        // Assert
+        result.Should().NotBeOfType<Flag>();
+        result.IsEnabled.Should().BeTrue();
+        _processSpy.GetCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void For_ExistingTransientFeature_CallsProvider_And_ReturnsFlag() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
+        const string name = "Feature2";
+
+        // Act
+        var result = factory.For(name);
+
+        // Assert
+        result.Should().NotBeOfType<Flag>();
+        result.IsEnabled.Should().BeTrue();
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByName(Feature2)", "Dispose");
+    }
+
+    [Fact]
+    public void For_NonRegusteredFeature_ReturnsNullFlag() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
+        const string name = "Invalid";
+
+        // Act
+        var result = factory.For(name);
+
+        // Assert
+        result.Should().BeOfType<NullFlag>();
+        result.IsEnabled.Should().BeFalse();
+        _processSpy.GetCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public void For_RemoveTransientFeature_ReturnsNullFlag() {
+        // Arrange
+        var factory = CreateFactory();
+        factory.AddProvider<FakeProvider>();
+        _processSpy.ClearCalls();
+        const string name = "Feature3";
+
+        // Act
+        var result = factory.For(name);
+
+        // Assert
+        result.Should().BeOfType<NullFlag>();
+        result.IsEnabled.Should().BeFalse();
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByName(Feature3)", "Dispose");
     }
 }
