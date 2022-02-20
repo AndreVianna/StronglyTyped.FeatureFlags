@@ -4,7 +4,7 @@ public class ConfigurationFeatureProviderTests {
     private readonly IConfiguration _subConfiguration;
 
     public ConfigurationFeatureProviderTests() {
-        _subConfiguration = new ConfigurationBuilder().AddJsonFile("testSettings.json").Build();
+        _subConfiguration = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
     }
 
     private ConfigurationFeatureProvider CreateProvider(string? section = null)
