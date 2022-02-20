@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace StronglyTyped.FeatureFlags.Tests;
+﻿namespace StronglyTyped.FeatureFlags.Tests;
 
 internal class InMemoryProviderSpy : IFeatureProvider {
     private readonly ProcessSpy _processSpy;
@@ -29,8 +26,8 @@ internal class InMemoryProviderSpy : IFeatureProvider {
         return _features;
     }
 
-    public IFeature? GetByName(string featureName) {
-        _processSpy.RegisterCall($"GetByName({featureName})");
+    public IFeature? GetByNameOrDefault(string featureName) {
+        _processSpy.RegisterCall($"GetByNameOrDefault({featureName})");
         return featureName == "Feature3"
             ? null // Simulates removed transient feature
             : _features.FirstOrDefault(i => i.Name == featureName);

@@ -85,10 +85,22 @@ public static class FlagsExtensions {
             : getThatAsync();
     }
 
+    public static Task<T> GetAsync<T>(this IFlag flag, Func<T> getThis, Func<Task<T>> getThatAsync) {
+        return flag.IsEnabled
+            ? Task.Run(getThis)
+            : getThatAsync();
+    }
+
     public static Task<T> GetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, T that) {
         return flag.IsEnabled
             ? getThisAsync()
             : Task.FromResult(that);
+    }
+
+    public static Task<T> GetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Func<T> getThat) {
+        return flag.IsEnabled
+            ? getThisAsync()
+            : Task.Run(getThat);
     }
 
     public static Task<T> GetAsync<T>(this IFlag flag, Func<Task<T>> getThisAsync, Func<Task<T>> getThatAsync) {

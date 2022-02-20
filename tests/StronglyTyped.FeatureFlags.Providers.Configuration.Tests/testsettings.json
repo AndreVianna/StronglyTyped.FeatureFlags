@@ -1,0 +1,24 @@
+{
+  "Features": {
+    "Feature1": true,
+    "Feature2": {
+      "IsEnabled": false
+    },
+    "Feature3": {
+      "Type": "Transient",
+      "IsEnabled": true
+    },
+    "Feature4": "invalid",
+    "Feature5": {
+      "Type": "Invalid",
+      "IsEnabled": "Invalid"
+    },
+    "Feature6": {
+      "Invalid": "Invalid"
+    }
+  },
+  "OtherFeatures": {
+    "FeatureA": true,
+    "FeatureB": false
+  }
+}

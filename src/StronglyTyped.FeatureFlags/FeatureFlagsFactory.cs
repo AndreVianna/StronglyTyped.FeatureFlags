@@ -16,7 +16,23 @@ public sealed class FeatureFlagsFactory : IFlagsFactory, IFlagsFactoryOptions {
 
     public void AddProvider<TProvider>() where TProvider : class, IFeatureProvider {
         _services.TryAddScoped<TProvider>();
+        RegisterProvider<TProvider>();
+    }
 
+    public void AddProvider<TProvider>(Func<IServiceProvider, TProvider> createProvider) where TProvider : class, IFeatureProvider {
+        _services.TryAddScoped(createProvider);
+        RegisterProvider<TProvider>();
+    }
+
+    public IFlag For(string name) {
+        return _staticFlags.TryGetValue(name, out var staticFlag)
+            ? staticFlag
+            : _providerNameByFeatureName.TryGetValue(name, out var providerName)
+                ? GetFromProvider(providerName, name)
+                : new NullFlag();
+    }
+
+    private void RegisterProvider<TProvider>() where TProvider : class, IFeatureProvider {
         using var serviceProvider = _services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
         var provider = scope.ServiceProvider.GetRequiredService<TProvider>();
@@ -26,14 +42,6 @@ public sealed class FeatureFlagsFactory : IFlagsFactory, IFlagsFactoryOptions {
         _providerTypeByName[provider.Name] = typeof(TProvider);
 
         RegisterFeatures(provider);
-    }
-
-    public IFlag For(string name) {
-        return _staticFlags.TryGetValue(name, out var staticFlag)
-            ? staticFlag
-            : _providerNameByFeatureName.TryGetValue(name, out var providerName)
-                ? GetFromProvider(providerName, name)
-                : new NullFlag();
     }
 
     private void RegisterFeatures(IFeatureProvider provider) {
@@ -51,6 +59,6 @@ public sealed class FeatureFlagsFactory : IFlagsFactory, IFlagsFactoryOptions {
         using var serviceProvider = _services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
         var provider = (IFeatureProvider)scope.ServiceProvider.GetRequiredService(providerType);
-        return provider.GetByName(featureName) ?? (IFlag)new NullFlag();
+        return provider.GetByNameOrDefault(featureName) ?? (IFlag)new NullFlag();
     }
 }

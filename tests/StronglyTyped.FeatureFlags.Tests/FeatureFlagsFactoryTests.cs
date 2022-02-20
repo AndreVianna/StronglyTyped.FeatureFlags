@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StronglyTyped.FeatureFlags.Tests;
+﻿namespace StronglyTyped.FeatureFlags.Tests;
 
 public class FeatureFlagsFactoryTests {
 
@@ -22,6 +20,19 @@ public class FeatureFlagsFactoryTests {
 
         // Act
         factory.AddProvider<FakeProvider>();
+
+        // Assert
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "Name", "Name", "GetAll", "Name", "Name", "Name", "Dispose");
+    }
+
+    [Fact]
+    public void AddProvider_ForNewProvider_WithConstructor_RegistersTheProvider() {
+        // Arrange
+        var factory = CreateFactory();
+        _processSpy.ClearCalls();
+
+        // Act
+        factory.AddProvider(_ => new FakeProvider(_processSpy));
 
         // Assert
         _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "Name", "Name", "GetAll", "Name", "Name", "Name", "Dispose");
@@ -50,7 +61,7 @@ public class FeatureFlagsFactoryTests {
         _processSpy.ClearCalls();
 
         // Act
-        var action = () => factory.AddProvider<FakeProviderWithDuplicatedFeature>();
+        var action = [ExcludeFromCodeCoverage] () => factory.AddProvider<FakeProviderWithDuplicatedFeature>();
 
         // Assert
         action.Should().Throw<InvalidOperationException>()
@@ -89,11 +100,11 @@ public class FeatureFlagsFactoryTests {
         // Assert
         result.Should().NotBeOfType<Flag>();
         result.IsEnabled.Should().BeTrue();
-        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByName(Feature2)", "Dispose");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature2)", "Dispose");
     }
 
     [Fact]
-    public void For_NonRegusteredFeature_ReturnsNullFlag() {
+    public void For_NonRegisteredFeature_ReturnsNullFlag() {
         // Arrange
         var factory = CreateFactory();
         factory.AddProvider<FakeProvider>();
@@ -123,6 +134,6 @@ public class FeatureFlagsFactoryTests {
         // Assert
         result.Should().BeOfType<NullFlag>();
         result.IsEnabled.Should().BeFalse();
-        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByName(Feature3)", "Dispose");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature3)", "Dispose");
     }
 }
