@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Generator;
+﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 internal class Emitter {
     private const int _defaultStringBuilderCapacity = 1024;

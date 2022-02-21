@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Generator;
+﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 
 internal class Parser {
@@ -22,7 +22,7 @@ internal class Parser {
         return null;
     }
 
-    public IReadOnlyList<FlagsSelector> FindFlagsSelectorClasses(IEnumerable<ClassDeclarationSyntax> classes, CancellationToken cancellationToken) {
+    public IReadOnlyList<FlagsSelector> GetFlagsSelectors(IEnumerable<ClassDeclarationSyntax> classes, CancellationToken cancellationToken) {
         var results = new List<FlagsSelector>();
         foreach (var classDeclaration in classes.Distinct().GroupBy(x => x.SyntaxTree).SelectMany(i => i)) {
             cancellationToken.ThrowIfCancellationRequested();
@@ -31,12 +31,10 @@ internal class Parser {
             var result = new FlagsSelector(@namespace, name);
             foreach (var member in classDeclaration.Members) {
                 if (member is not FieldDeclarationSyntax field) continue;
-                var decalration = field.Declaration;
-                var typeSyntax = decalration.Type;
-                if (typeSyntax is not ArrayTypeSyntax arrayTypeSyntax) continue;
+                if (field.Declaration.Type is not ArrayTypeSyntax arrayTypeSyntax) continue;
                 if (!IsString(arrayTypeSyntax.ElementType)) continue;
-                if (decalration.Variables.Count != 1) continue;
-                var initializerSyntax = decalration.Variables.First().Initializer;
+                if (field.Declaration.Variables.Count != 1) continue;
+                var initializerSyntax = field.Declaration.Variables.First().Initializer;
                 if (initializerSyntax is null) continue;
 
                 var arrayItems = initializerSyntax.Value.ChildNodes();

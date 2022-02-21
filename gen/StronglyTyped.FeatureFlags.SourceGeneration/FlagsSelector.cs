@@ -1,11 +1,5 @@
-﻿namespace StronglyTyped.FeatureFlags.Generator;
+﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
-internal class FlagsSelector {
-    public FlagsSelector(string @namespace, string name) {
-        Namespace = @namespace;
-        Name = name;
-    }
-    public string Namespace { get; }
-    public string Name { get; }
+internal record FlagsSelector(string Namespace, string Name) {
     public ICollection<string> Features { get; } = new HashSet<string>();
 }

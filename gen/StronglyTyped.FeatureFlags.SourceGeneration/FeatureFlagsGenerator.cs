@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Generator;
+﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 [Generator]
 public class FeatureFlagsGenerator : IIncrementalGenerator {
@@ -11,16 +11,15 @@ public class FeatureFlagsGenerator : IIncrementalGenerator {
             .Where(type => type is not null)
             .Collect();
 
-        context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles( spc, source!));
+        context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles(spc, source!));
     }
 
-    private static void GenerateFiles(SourceProductionContext context, ImmutableArray<ClassDeclarationSyntax> flagsSelectorClasses) {
-        if (flagsSelectorClasses.IsDefaultOrEmpty)
+    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<ClassDeclarationSyntax> classesWithFlagsSelectorAttribute) {
+        if (classesWithFlagsSelectorAttribute.IsDefaultOrEmpty)
             return;
 
         var parser = new Parser();
-        var flagsSelectors = parser.FindFlagsSelectorClasses(flagsSelectorClasses, context.CancellationToken);
-        if (flagsSelectors.Count == 0) return;
+        var flagsSelectors = parser.GetFlagsSelectors(classesWithFlagsSelectorAttribute, context.CancellationToken);
 
         var emitter = new Emitter();
         emitter.EmitFiles(context, flagsSelectors);
