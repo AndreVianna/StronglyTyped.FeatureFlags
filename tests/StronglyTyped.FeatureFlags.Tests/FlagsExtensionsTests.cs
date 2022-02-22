@@ -1,5 +1,6 @@
 ﻿namespace StronglyTyped.FeatureFlags.Tests;
 
+[ExcludeFromCodeCoverage]
 public class FlagsExtensionsTests {
 
     private readonly IFlag _enabledFlag = new Flag(true);

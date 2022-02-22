@@ -4,9 +4,12 @@ namespace StronglyTyped.FeatureFlags.Consumer;
 
 [FeatureFlagsSelector]
 public partial class FeatureAccessor {
+    private const string _someValue = "SomeValue";
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for code generation.")]
     private static readonly string[] _availableFeatures = {
         "SaluteUniverse",
-        "OtherFeature"
+        "OtherFeature",
+        _someValue,
+        $"Feature{4}"
     };
 }

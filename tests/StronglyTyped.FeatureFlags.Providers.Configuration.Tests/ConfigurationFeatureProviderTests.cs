@@ -1,5 +1,6 @@
 ﻿namespace StronglyTyped.FeatureFlags.Providers.Configuration.Tests;
 
+[ExcludeFromCodeCoverage]
 public class ConfigurationFeatureProviderTests {
     private readonly IConfiguration _subConfiguration;
 

@@ -1,5 +1,6 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration.Tests;
 
+[ExcludeFromCodeCoverage]
 public class FlagsSelectorTests {
     [Fact]
     public void Feature_Properties_Work() {

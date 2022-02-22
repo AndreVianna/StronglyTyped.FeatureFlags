@@ -1,5 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.Tests;
+using TestDoubles;
 
+[ExcludeFromCodeCoverage]
 public class FeatureFlagsFactoryTests {
 
     private readonly ProcessSpy _processSpy = new();

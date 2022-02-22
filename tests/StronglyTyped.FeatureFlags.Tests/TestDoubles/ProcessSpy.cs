@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace StronglyTyped.FeatureFlags.Tests.TestDoubles;
 
-namespace StronglyTyped.FeatureFlags.Tests;
-
+[ExcludeFromCodeCoverage]
 internal class ProcessSpy {
     private readonly IList<string> _calls = new List<string>();
 

@@ -1,8 +1,9 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions.Tests;
 
+[ExcludeFromCodeCoverage]
 public class FlagTests {
     [Fact]
-    public void Flag_Properties_Work() {
+    public void Flag_IsARecord() {
         // Arrange
         var flag = new Flag(true);
 
@@ -16,7 +17,7 @@ public class FlagTests {
     }
 
     [Fact]
-    public void NullFlag_Properties_Work() {
+    public void NullFlag_IsARecord() {
         // Arrange
         var flag = new NullFlag();
 

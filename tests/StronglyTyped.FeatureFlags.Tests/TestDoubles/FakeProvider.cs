@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿namespace StronglyTyped.FeatureFlags.Tests.TestDoubles;
 
-namespace StronglyTyped.FeatureFlags.Tests;
-
+[ExcludeFromCodeCoverage]
 internal class FakeProvider : InMemoryProviderSpy {
-    public FakeProvider(ProcessSpy processSpy) : base(processSpy, new List<IFeature> {
+    public FakeProvider(ProcessSpy processSpy) : base(processSpy, new[] {
         new Feature("Feature1", FlagType.Static, true),
         new Feature("Feature2", FlagType.Transient, true),
         new Feature("Feature3", FlagType.Transient, true),

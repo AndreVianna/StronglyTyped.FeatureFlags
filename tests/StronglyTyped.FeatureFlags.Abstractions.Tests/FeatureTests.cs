@@ -1,8 +1,9 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions.Tests;
 
+[ExcludeFromCodeCoverage]
 public class FeatureTests {
     [Fact]
-    public void Feature_Properties_Work() {
+    public void Feature_IsARecord() {
         // Arrange
         var feature = new Feature("SomeName", FlagType.Transient, false);
 

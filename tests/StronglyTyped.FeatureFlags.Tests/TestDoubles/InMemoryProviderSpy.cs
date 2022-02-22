@@ -1,14 +1,15 @@
-﻿namespace StronglyTyped.FeatureFlags.Tests;
+﻿namespace StronglyTyped.FeatureFlags.Tests.TestDoubles;
 
+[ExcludeFromCodeCoverage]
 internal class InMemoryProviderSpy : IFeatureProvider {
     private readonly ProcessSpy _processSpy;
     private readonly IList<IFeature> _features = new List<IFeature>();
 
 
-    public InMemoryProviderSpy(ProcessSpy processSpy, List<IFeature> features) {
+    public InMemoryProviderSpy(ProcessSpy processSpy, IEnumerable<IFeature> features) {
         _processSpy = processSpy;
         _processSpy.RegisterCall("Constructor");
-        features.ForEach(f => _features.Add(f));
+        features.ToList().ForEach(f => _features.Add(f));
     }
 
     public virtual string Name {
