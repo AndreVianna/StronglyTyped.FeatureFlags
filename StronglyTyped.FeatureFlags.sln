@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags", "src\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj", "{2B7D0BE9-AE6C-45AE-8CC5-ED01B9C66DC1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.Consumer", "tests\StronglyTyped.FeatureFlags.Consumer\StronglyTyped.FeatureFlags.Consumer.csproj", "{D0E1CE85-FE72-4D38-99AA-5B325BD13ACF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.TestConsumer", "tests\StronglyTyped.FeatureFlags.TestConsumer\StronglyTyped.FeatureFlags.TestConsumer.csproj", "{D0E1CE85-FE72-4D38-99AA-5B325BD13ACF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0_Source", "0_Source", "{86D6D0F2-9278-4D67-8336-0732D4FC37AB}"
 EndProject
@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.Providers.Configuration.Tests", "tests\StronglyTyped.FeatureFlags.Providers.Configuration.Tests\StronglyTyped.FeatureFlags.Providers.Configuration.Tests.csproj", "{98D2CAC1-58ED-4233-9DA1-48669F118300}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StronglyTyped.FeatureFlags.SourceGeneration.Tests", "tests\StronglyTyped.FeatureFlags.SourceGeneration.Tests\StronglyTyped.FeatureFlags.SourceGeneration.Tests.csproj", "{D357FE80-64F6-445A-8480-F6FA0C6F7903}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StronglyTyped.FeatureFlags.SourceGeneration.Tests", "tests\StronglyTyped.FeatureFlags.SourceGeneration.Tests\StronglyTyped.FeatureFlags.SourceGeneration.Tests.csproj", "{D357FE80-64F6-445A-8480-F6FA0C6F7903}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
