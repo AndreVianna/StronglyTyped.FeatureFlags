@@ -20,4 +20,3 @@ public class FeatureTests {
         feature.IsEnabled.Should().BeTrue();
     }
 }
-

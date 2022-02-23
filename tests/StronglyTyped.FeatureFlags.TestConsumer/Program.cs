@@ -2,8 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StronglyTyped.FeatureFlags;
-using StronglyTyped.FeatureFlags.Consumer;
+using StronglyTyped.FeatureFlags.TestConsumer;
 using StronglyTyped.FeatureFlags.Providers.Configuration;
+using FeatureAccessor = StronglyTyped.FeatureFlags.TestConsumer.FeatureAccessor;
 
 var serviceProvider = CreateServiceProvider();
 
@@ -19,7 +20,7 @@ static IServiceProvider CreateServiceProvider() {
         .Build();
 
     services.AddSingleton<IConfiguration>(_ => config);
-    services.AddFeatureFlags(opt => opt.AddProvider<ConfigurationFeatureProvider>());
+    services.AddFeatureFlags(opt => opt.TryAddProvider<ConfigurationFeatureProvider>());
     services.AddSingleton<IFeatureAccessor, FeatureAccessor>();
 
     return services.BuildServiceProvider(true).CreateScope().ServiceProvider;

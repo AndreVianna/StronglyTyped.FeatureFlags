@@ -1,64 +1,49 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace StronglyTyped.FeatureFlags;
+﻿namespace StronglyTyped.FeatureFlags;
 using static FlagType;
 
-public sealed class FeatureFlagsFactory : IFlagsFactory, IFlagsFactoryOptions {
+public sealed class FeatureFlagsFactory : IFlagsFactory {
+    internal static readonly IDictionary<string, IFlag> StaticFlags = new Dictionary<string, IFlag>();
+    internal static readonly ICollection<FeatureEntity> Features = new HashSet<FeatureEntity>();
 
-    private readonly IServiceCollection _services;
-    private readonly IDictionary<string, Type> _providerTypeByName = new Dictionary<string, Type>();
-    private readonly IDictionary<string, string> _providerNameByFeatureName = new Dictionary<string, string>();
-    private readonly IDictionary<string, IFlag> _staticFlags = new Dictionary<string, IFlag>();
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IDictionary<string, IFlag> _scopedFlags = new Dictionary<string, IFlag>();
 
-    public FeatureFlagsFactory(IServiceCollection services) {
-        _services = services;
-    }
-
-    public void AddProvider<TProvider>() where TProvider : class, IFeatureProvider {
-        _services.TryAddScoped<TProvider>();
-        RegisterProvider<TProvider>();
-    }
-
-    public void AddProvider<TProvider>(Func<IServiceProvider, TProvider> createProvider) where TProvider : class, IFeatureProvider {
-        _services.TryAddScoped(createProvider);
-        RegisterProvider<TProvider>();
+    public FeatureFlagsFactory(IServiceProvider serviceProvider) {
+        _serviceProvider = serviceProvider;
+        RegisterScopedFeatures();
     }
 
     public IFlag For(string name) {
-        return _staticFlags.TryGetValue(name, out var staticFlag)
-            ? staticFlag
-            : _providerNameByFeatureName.TryGetValue(name, out var providerName)
-                ? GetFromProvider(providerName, name)
-                : new NullFlag();
+        if (StaticFlags.TryGetValue(name, out var staticFlag))
+            return staticFlag;
+        else if (_scopedFlags.TryGetValue(name, out var scopedFlag))
+            return scopedFlag;
+        else if (TryGetFromProvider(name, out var transientFlag))
+            return transientFlag!;
+        else
+            return new NullFlag();
     }
 
-    private void RegisterProvider<TProvider>() where TProvider : class, IFeatureProvider {
-        using var serviceProvider = _services.BuildServiceProvider();
-        using var scope = serviceProvider.CreateScope();
-        var provider = scope.ServiceProvider.GetRequiredService<TProvider>();
-
-        if (_providerTypeByName.ContainsKey(provider.Name)) return;
-
-        _providerTypeByName[provider.Name] = typeof(TProvider);
-
-        RegisterFeatures(provider);
-    }
-
-    private void RegisterFeatures(IFeatureProvider provider) {
-        var features = provider.GetAll().ToArray();
-        foreach (var feature in features) {
-            if (_providerNameByFeatureName.ContainsKey(feature.Name))
-                throw new InvalidOperationException($"Duplicated feature flag definition found in '{_providerNameByFeatureName[feature.Name]}' and '{provider.Name}' providers.");
-            _providerNameByFeatureName.Add(feature.Name, provider.Name);
-            if (feature.Type == Static) _staticFlags.Add(feature.Name, feature);
+    private void RegisterScopedFeatures() {
+        var scopedFeaturesGroupedByProvider = Features
+            .Where(i => i.FlagType == Scoped)
+            .GroupBy(i => i.ProviderType)
+            .Select(g => new { ProviderType = g.Key, FeatureNames = g.Select(i => i.Name) })
+            .ToArray();
+        foreach (var groupOfFeatures in scopedFeaturesGroupedByProvider) {
+            using var provider = (IFeatureProvider)_serviceProvider.GetRequiredService(groupOfFeatures.ProviderType);
+            foreach (var featureName in groupOfFeatures.FeatureNames)
+                _scopedFlags[featureName] = provider.GetByNameOrDefault(featureName) ?? (IFlag)new NullFlag();
         }
     }
 
-    private IFlag GetFromProvider(string providerName, string featureName) {
-        var providerType = _providerTypeByName[providerName];
-        using var serviceProvider = _services.BuildServiceProvider();
-        using var scope = serviceProvider.CreateScope();
-        var provider = (IFeatureProvider)scope.ServiceProvider.GetRequiredService(providerType);
-        return provider.GetByNameOrDefault(featureName) ?? (IFlag)new NullFlag();
+    private bool TryGetFromProvider(string featureName, out IFlag? flag) {
+        flag = default;
+        var feature = Features.FirstOrDefault(i => i.Name == featureName);
+        if (feature is null) return false;
+
+        using var provider = (IFeatureProvider)_serviceProvider.GetRequiredService(feature.ProviderType);
+        flag = provider.GetByNameOrDefault(featureName);
+        return flag is not null;
     }
 }

@@ -1,11 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace StronglyTyped.FeatureFlags.TestConsumer;
 
-namespace StronglyTyped.FeatureFlags.Consumer;
-
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private const string _someValue = "SomeValue";
-    [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for code generation.")]
     private static readonly string[] _availableFeatures = {
         "SaluteUniverse",
         "OtherFeature",

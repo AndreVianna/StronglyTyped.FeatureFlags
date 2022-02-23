@@ -2,9 +2,9 @@
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddFeatureFlags(this IServiceCollection services, Action<IFlagsFactoryOptions> configure) {
-        var factory = new FeatureFlagsFactory(services);
-        configure(factory);
-        services.AddSingleton<IFlagsFactory>(factory);
+        var builder = new FeatureFlagsFactoryBuilder(services);
+        configure(builder);
+        services.TryAddScoped<IFlagsFactory>(prv => builder.Build(prv));
         return services;
     }
 }

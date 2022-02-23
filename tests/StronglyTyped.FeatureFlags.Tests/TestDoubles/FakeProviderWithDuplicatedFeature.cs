@@ -5,11 +5,4 @@ internal class FakeProviderWithDuplicatedFeature : InMemoryProviderSpy {
     public FakeProviderWithDuplicatedFeature(ProcessSpy processSpy) : base(processSpy, new[] {
         new Feature("Feature2", FlagType.Transient, true),
     }) { }
-
-    public override string Name {
-        get {
-            _ = base.Name;
-            return nameof(FakeProviderWithDuplicatedFeature);
-        }
-    }
 }

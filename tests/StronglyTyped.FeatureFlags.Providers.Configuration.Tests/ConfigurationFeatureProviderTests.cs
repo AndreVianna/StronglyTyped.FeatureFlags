@@ -30,10 +30,11 @@ public class ConfigurationFeatureProviderTests {
         var expectedFeatures = new[] {
             new Feature("Feature1", FlagType.Static, true),
             new Feature("Feature2", FlagType.Static, false),
-            new Feature("Feature3", FlagType.Transient, true),
-            new Feature("Feature4", FlagType.Static, false),
+            new Feature("Feature3", FlagType.Scoped, true),
+            new Feature("Feature4", FlagType.Transient, true),
             new Feature("Feature5", FlagType.Static, false),
-            new Feature("Feature6", FlagType.Static, false)
+            new Feature("Feature6", FlagType.Static, false),
+            new Feature("Feature7", FlagType.Static, false)
         };
 
         // Act
@@ -74,10 +75,11 @@ public class ConfigurationFeatureProviderTests {
     [Theory]
     [InlineData("Feature1", FlagType.Static, true)]
     [InlineData("Feature2", FlagType.Static, false)]
-    [InlineData("Feature3", FlagType.Transient, true)]
-    [InlineData("Feature4", FlagType.Static, false)]
+    [InlineData("Feature3", FlagType.Scoped, true)]
+    [InlineData("Feature4", FlagType.Transient, true)]
     [InlineData("Feature5", FlagType.Static, false)]
     [InlineData("Feature6", FlagType.Static, false)]
+    [InlineData("Feature7", FlagType.Static, false)]
     public void GetByName_ForExistingFeature_ReturnsExpectedValue(string featureName, FlagType expectedType, bool expectedState) {
         // Arrange
         var provider = CreateProvider();

@@ -12,13 +12,6 @@ internal class InMemoryProviderSpy : IFeatureProvider {
         features.ToList().ForEach(f => _features.Add(f));
     }
 
-    public virtual string Name {
-        get {
-            _processSpy.RegisterCall("Name");
-            return nameof(InMemoryProviderSpy);
-        }
-    }
-
     public void Dispose() {
         _processSpy.RegisterCall("Dispose");
     }
@@ -29,7 +22,7 @@ internal class InMemoryProviderSpy : IFeatureProvider {
 
     public IFeature? GetByNameOrDefault(string featureName) {
         _processSpy.RegisterCall($"GetByNameOrDefault({featureName})");
-        return featureName == "Feature3"
+        return featureName is "Feature7" or "Feature8"
             ? null // Simulates removed transient feature
             : _features.FirstOrDefault(i => i.Name == featureName);
     }

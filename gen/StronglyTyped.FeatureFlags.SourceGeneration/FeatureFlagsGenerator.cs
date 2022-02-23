@@ -8,18 +8,18 @@ public class FeatureFlagsGenerator : IIncrementalGenerator {
             .CreateSyntaxProvider(
                 static (sn, _) => Parser.IsSyntaxTargetForGeneration(sn),
                 static (ctx, _) => Parser.GetSemanticTargetForGeneration(ctx))
-            .Where(type => type is not null)
+            .Where(result => result is not null)
             .Collect();
 
-        context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles(spc, source!));
+        context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles(spc, source.Select(i => i!.Value).ToArray()));
     }
 
-    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<ClassDeclarationSyntax> classesWithFlagsSelectorAttribute) {
-        if (classesWithFlagsSelectorAttribute.IsDefaultOrEmpty)
+    internal static void GenerateFiles(SourceProductionContext context, (ClassDeclarationSyntax ClassDeclaration, string FieldName)[] selectors) {
+        if (selectors.Length == 0)
             return;
 
         var parser = new Parser();
-        var flagsSelectors = parser.GetFlagsSelectors(classesWithFlagsSelectorAttribute, context.CancellationToken);
+        var flagsSelectors = parser.GetFlagsSelectors(selectors, context.CancellationToken);
 
         var emitter = new Emitter();
         emitter.EmitFiles(context, flagsSelectors);

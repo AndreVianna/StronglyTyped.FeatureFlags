@@ -75,13 +75,13 @@ partial class FeatureAccessor : IFeatureAccessor
     [InlineData("string")]
     [InlineData("String")]
     [InlineData("System.String")]
-    public async Task SourceFile_WithAClass_WithFeatureSelectorAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
+    public async Task SourceFile_WithAClass_WithFeatureFlagsAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
         var code = @$"
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {{
     private static readonly {arrayType}[] _availableFeatures = {{
         ""Feature1"",
@@ -104,7 +104,7 @@ public partial class FeatureAccessor {{
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests {
-    [FeatureFlagsSelector]
+    [FeatureFlags(nameof(_availableFeatures))]
     public partial class FeatureAccessor {
         private static readonly string[] _availableFeatures = {
             ""Feature1"",
@@ -127,7 +127,7 @@ namespace SourceGeneration.Tests {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
@@ -164,7 +164,7 @@ public partial class FeatureAccessor {
     }
 
     [Fact]
-    public async Task SourceFile_WithAClass_WithoutFeatureSelectorAttribute_DoesNotGenerateCode() {
+    public async Task SourceFile_WithAClass_WithoutFeatureFlagsAttribute_DoesNotGenerateCode() {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
@@ -192,7 +192,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(""_availableFeatures"")]
 public partial class FeatureAccessor {
     public static string[] AvailableFeatures { get; }
 }
@@ -200,10 +200,32 @@ public partial class FeatureAccessor {
 
         var (diagnostics, resultedCode) = await RunAsync(code);
 
-        diagnostics.Length.Should().Be(0);
-        resultedCode.Length.Should().Be(2);
-        resultedCode[0].SourceText.ToString().Should().Be(_emptyInterface);
-        resultedCode[1].SourceText.ToString().Should().Be(_emptyClass);
+        diagnostics.Length.Should().Be(1);
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("A field with name '_availableFeatures' was not found.");
+        resultedCode.Length.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task SourceFile_WithAValidClass_WithAPublicField_GeneratesCode_WithNoProperties() {
+        const string code = @"
+using StronglyTyped.FeatureFlags;
+
+namespace SourceGeneration.Tests;
+
+[FeatureFlags(nameof(_availableFeatures))]
+public partial class FeatureAccessor {
+    public static readonly string[] _availableFeatures = {
+        ""Feature1"",
+        ""Feature2""
+    };
+}
+";
+
+        var (diagnostics, resultedCode) = await RunAsync(code);
+
+        diagnostics.Length.Should().Be(1);
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' must be private.");
+        resultedCode.Length.Should().Be(0);
     }
 
     [Fact]
@@ -213,7 +235,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private static string _availableFeatures;
 }
@@ -221,33 +243,10 @@ public partial class FeatureAccessor {
 
         var (diagnostics, resultedCode) = await RunAsync(code);
 
-        diagnostics.Length.Should().Be(0);
-        resultedCode.Length.Should().Be(2);
-        resultedCode[0].SourceText.ToString().Should().Be(_emptyInterface);
-        resultedCode[1].SourceText.ToString().Should().Be(_emptyClass);
+        diagnostics.Length.Should().Be(1);
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' field must be a string array.");
+        resultedCode.Length.Should().Be(0);
     }
-
-    [Fact]
-    public async Task SourceFile_WithAValidClass_WithMultipleFieldDeclaration_GeneratesCode_WithNoProperties() {
-        const string code = @"
-using StronglyTyped.FeatureFlags;
-
-namespace SourceGeneration.Tests;
-
-[FeatureFlagsSelector]
-public partial class FeatureAccessor {{
-    private static readonly string[] _availableFeatures, _other;
-}}
-";
-
-        var (diagnostics, resultedCode) = await RunAsync(code);
-
-        diagnostics.Length.Should().Be(0);
-        resultedCode.Length.Should().Be(2);
-        resultedCode[0].SourceText.ToString().Should().Be(_emptyInterface);
-        resultedCode[1].SourceText.ToString().Should().Be(_emptyClass);
-    }
-
 
     [Fact]
     public async Task SourceFile_WithAValidClass_WithNoInitializer_GeneratesCode_WithNoProperties() {
@@ -256,7 +255,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {{
     private static readonly string[] _availableFeatures;
 }}
@@ -277,7 +276,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private static readonly int[] _availableFeatures = {
         1,
@@ -288,10 +287,9 @@ public partial class FeatureAccessor {
 
         var (diagnostics, resultedCode) = await RunAsync(code);
 
-        diagnostics.Length.Should().Be(0);
-        resultedCode.Length.Should().Be(2);
-        resultedCode[0].SourceText.ToString().Should().Be(_emptyInterface);
-        resultedCode[1].SourceText.ToString().Should().Be(_emptyClass);
+        diagnostics.Length.Should().Be(1);
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' field must be a string array.");
+        resultedCode.Length.Should().Be(0);
     }
 
     [Fact]
@@ -301,7 +299,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private static readonly String[] _availableFeatures = {
     };
@@ -323,7 +321,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlagsSelector]
+[FeatureFlags(nameof(_availableFeatures))]
 public partial class FeatureAccessor {
     private const string _feature3 = ""Feature3"";
 

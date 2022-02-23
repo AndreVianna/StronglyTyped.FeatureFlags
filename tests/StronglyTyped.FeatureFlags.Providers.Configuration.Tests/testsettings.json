@@ -5,15 +5,19 @@
       "IsEnabled": false
     },
     "Feature3": {
+      "Type": "Scoped",
+      "IsEnabled": true
+    },
+    "Feature4": {
       "Type": "Transient",
       "IsEnabled": true
     },
-    "Feature4": "invalid",
-    "Feature5": {
+    "Feature5": "invalid",
+    "Feature6": {
       "Type": "Invalid",
       "IsEnabled": "Invalid"
     },
-    "Feature6": {
+    "Feature7": {
       "Invalid": "Invalid"
     }
   },

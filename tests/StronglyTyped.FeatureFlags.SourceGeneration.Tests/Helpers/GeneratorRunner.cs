@@ -9,7 +9,7 @@ internal static class GeneratorRunner {
     internal static async Task<(Diagnostic[], GeneratedSourceResult[])> RunAsync(string code) {
         var runResult = await RunGeneratorAsync(
             new FeatureFlagsGenerator(),
-            new[] { typeof(FeatureFlagsSelectorAttribute).Assembly },
+            new[] { typeof(FeatureFlagsAttribute).Assembly },
             new[] { code }).ConfigureAwait(false);
 
         return (runResult.Diagnostics.ToArray(), runResult.GeneratedSources.ToArray());
