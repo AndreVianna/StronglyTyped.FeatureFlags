@@ -1,4 +1,6 @@
-﻿namespace StronglyTyped.FeatureFlags;
+﻿using System.Collections.Concurrent;
+
+namespace StronglyTyped.FeatureFlags;
 using static FlagType;
 
 public sealed class FeatureFlagsFactory : IFlagsFactory {
@@ -10,40 +12,16 @@ public sealed class FeatureFlagsFactory : IFlagsFactory {
 
     public FeatureFlagsFactory(IServiceProvider serviceProvider) {
         _serviceProvider = serviceProvider;
-        RegisterScopedFeatures();
     }
 
     public IFlag For(string name) {
-        if (StaticFlags.TryGetValue(name, out var staticFlag))
-            return staticFlag;
-        else if (_scopedFlags.TryGetValue(name, out var scopedFlag))
-            return scopedFlag;
-        else if (TryGetFromProvider(name, out var transientFlag))
-            return transientFlag!;
-        else
-            return new NullFlag();
-    }
-
-    private void RegisterScopedFeatures() {
-        var scopedFeaturesGroupedByProvider = Features
-            .Where(i => i.FlagType == Scoped)
-            .GroupBy(i => i.ProviderType)
-            .Select(g => new { ProviderType = g.Key, FeatureNames = g.Select(i => i.Name) })
-            .ToArray();
-        foreach (var groupOfFeatures in scopedFeaturesGroupedByProvider) {
-            using var provider = (IFeatureProvider)_serviceProvider.GetRequiredService(groupOfFeatures.ProviderType);
-            foreach (var featureName in groupOfFeatures.FeatureNames)
-                _scopedFlags[featureName] = provider.GetByNameOrDefault(featureName) ?? (IFlag)new NullFlag();
-        }
-    }
-
-    private bool TryGetFromProvider(string featureName, out IFlag? flag) {
-        flag = default;
-        var feature = Features.FirstOrDefault(i => i.Name == featureName);
-        if (feature is null) return false;
-
+        if (StaticFlags.TryGetValue(name, out var flag)) return flag;
+        if (_scopedFlags.ContainsKey(name)) return _scopedFlags[name];
+        var feature = Features.FirstOrDefault(i => i.Name == name);
+        if (feature is null) return new NullFlag();
         using var provider = (IFeatureProvider)_serviceProvider.GetRequiredService(feature.ProviderType);
-        flag = provider.GetByNameOrDefault(featureName);
-        return flag is not null;
+        flag = (IFlag?)provider.GetByNameOrDefault(name) ?? new NullFlag();
+        if (feature.FlagType == Scoped) _scopedFlags[name] = flag;
+        return flag;
     }
 }
