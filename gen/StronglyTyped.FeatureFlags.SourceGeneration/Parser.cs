@@ -28,13 +28,13 @@ internal class Parser {
             => attributeConstructor.ContainingType.ToDisplayString() == _featureListAttribute;
     }
 
-    public IReadOnlyList<FlagsSelector> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {
-        var results = new List<FlagsSelector>();
+    public IReadOnlyList<FeatureAccessorDefinition> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {
+        var results = new List<FeatureAccessorDefinition>();
         foreach (var (classDeclaration, fieldName) in selectors) {
             cancellationToken.ThrowIfCancellationRequested();
             var (@namespace, name) = ExtractClassDefinition(classDeclaration);
             if (@namespace is null) continue;
-            var result = new FlagsSelector(@namespace, name);
+            var result = new FeatureAccessorDefinition(@namespace, name);
             var field = classDeclaration
                 .Members
                 .OfType<FieldDeclarationSyntax>()
@@ -52,9 +52,18 @@ internal class Parser {
             if (initializer is null) continue;
             var arrayItems = initializer.Value.ChildNodes();
             foreach (var arrayItem in arrayItems) {
-                if (arrayItem is not LiteralExpressionSyntax literalSyntax) continue;
-                var feature = literalSyntax.ChildTokens().First().ValueText;
-                result.Features.Add(feature);
+                switch (arrayItem) {
+                    case LiteralExpressionSyntax literal: {
+                        var feature = literal.ChildTokens().First().ValueText;
+                        result.Features.Add(feature);
+                        break;
+                    }
+                    case InvocationExpressionSyntax {Expression: IdentifierNameSyntax} invocation: {
+                        var section = invocation.ArgumentList.Arguments[0].ToString();
+                        result.Sections.Add(section);
+                        break;
+                    }
+                }
             }
         }
 

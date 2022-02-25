@@ -5,7 +5,7 @@ public class FlagsSelectorTests {
     [Fact]
     public void Feature_Properties_Work() {
         // Arrange
-        var selector = new FlagsSelector("SomeNamespace", "SomeName");
+        var selector = new FeatureAccessorDefinition("SomeNamespace", "SomeName");
 
         // Assert
         selector.Namespace.Should().Be("SomeNamespace");

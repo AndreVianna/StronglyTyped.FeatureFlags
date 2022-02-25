@@ -1,10 +1,9 @@
 ﻿namespace StronglyTyped.FeatureFlags.TestConsumer;
 
 [FeatureList(nameof(_availableFeatures))]
-public partial class Features {
+public partial class SubFeatures {
     private static readonly string[] _availableFeatures = {
-        "SaluteUniverse",
-        "OtherFeature",
-        nameof(SubFeatures)
+        "Feature1",
+        "Feature2",
     };
 }
