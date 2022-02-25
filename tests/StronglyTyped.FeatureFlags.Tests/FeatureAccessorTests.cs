@@ -3,26 +3,26 @@ using TestDoubles;
 
 [ExcludeFromCodeCoverage]
 [Collection("Sequential")]
-public sealed class FeatureFlagsFactoryTests : IDisposable {
+public sealed class FeatureAccessorTests : IDisposable {
 
     private readonly ProcessSpy _processSpy = new();
     private readonly IServiceCollection _serviceCollection = Substitute.For<ServiceCollection>();
 
-    public FeatureFlagsFactoryTests() {
+    public FeatureAccessorTests() {
         _serviceCollection.AddSingleton(_processSpy);
     }
 
-    private FeatureFlagsFactory CreateFactory() {
-        var builder = new FeatureFlagsFactoryBuilder(_serviceCollection);
+    private FeatureAccessor CreateFactory() {
+        var builder = new FeatureAccessorBuilder(_serviceCollection);
         builder.TryAddProvider<FakeProvider>();
-        var factory = builder.Build(_serviceCollection.BuildServiceProvider());
+        var accessor = builder.Build(_serviceCollection.BuildServiceProvider());
         _processSpy.ClearCalls();
-        return factory;
+        return accessor;
     }
 
     public void Dispose() {
-        FeatureFlagsFactory.Features.Clear();
-        FeatureFlagsFactory.StaticFlags.Clear();
+        FeatureAccessor.Features.Clear();
+        FeatureAccessor.StaticFlags.Clear();
     }
 
     [Fact]
@@ -35,7 +35,6 @@ public sealed class FeatureFlagsFactoryTests : IDisposable {
         var result = factory.For(name);
 
         // Assert
-        result.Should().NotBeOfType<NullFlag>();
         result.IsEnabled.Should().BeTrue();
         _processSpy.GetCalls().Should().BeEmpty();
     }
@@ -51,7 +50,6 @@ public sealed class FeatureFlagsFactoryTests : IDisposable {
         var result = factory.For(name);
 
         // Assert
-        result.Should().NotBeOfType<NullFlag>();
         result.IsEnabled.Should().Be(previous.IsEnabled);
         _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature2)", "Dispose");
     }
@@ -66,7 +64,6 @@ public sealed class FeatureFlagsFactoryTests : IDisposable {
         var result = factory.For(name);
 
         // Assert
-        result.Should().NotBeOfType<NullFlag>();
         result.IsEnabled.Should().BeTrue();
         _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature3)", "Dispose");
     }
@@ -81,7 +78,6 @@ public sealed class FeatureFlagsFactoryTests : IDisposable {
         var result = factory.For(name);
 
         // Assert
-        result.Should().BeOfType<NullFlag>();
         result.IsEnabled.Should().BeFalse();
         _processSpy.GetCalls().Should().BeEmpty();
     }
@@ -96,7 +92,6 @@ public sealed class FeatureFlagsFactoryTests : IDisposable {
         var result = factory.For(name);
 
         // Assert
-        result.Should().BeOfType<NullFlag>();
         result.IsEnabled.Should().BeFalse();
         _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature8)", "Dispose");
     }

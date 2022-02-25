@@ -2,9 +2,9 @@
 namespace StronglyTyped.FeatureFlags;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class FeatureFlagsAttribute : Attribute
+public class FeatureListAttribute : Attribute
 {
-    public FeatureFlagsAttribute(string fieldName) {
+    public FeatureListAttribute(string fieldName) {
         FieldName = fieldName;
     }
 

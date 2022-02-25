@@ -13,16 +13,16 @@ public class FlagTests {
         };
 
         // Assert
-        flag.IsEnabled.Should().Be(false);
+        flag.IsEnabled.Should().BeFalse();
     }
 
     [Fact]
-    public void NullFlag_IsARecord() {
+    public void Flag_Null_IsNotEnabled() {
         // Arrange
-        var flag = new NullFlag();
+        var flag = Flag.Null;
 
         // Assert
-        flag.IsEnabled.Should().Be(false);
+        flag.IsEnabled.Should().BeFalse();
     }
 }
 

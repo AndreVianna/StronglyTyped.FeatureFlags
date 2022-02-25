@@ -7,15 +7,10 @@ public class FlagsSelectorTests {
         // Arrange
         var selector = new FlagsSelector("SomeNamespace", "SomeName");
 
-        // Act
-        selector = selector with {
-            Namespace = "OtherNamespace",
-            Name = "OtherName",
-        };
-
         // Assert
-        selector.Namespace.Should().Be("OtherNamespace");
-        selector.Name.Should().Be("OtherName");
+        selector.Namespace.Should().Be("SomeNamespace");
+        selector.Name.Should().Be("SomeName");
+        selector.Features.Should().BeEmpty();
     }
 }
 

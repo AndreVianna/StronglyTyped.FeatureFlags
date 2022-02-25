@@ -2,8 +2,8 @@
 
 
 internal class Parser {
-    private const string _featureFlagsAttributeName = "FeatureFlagsAttribute";
-    private const string _featureFlagsAttribute = "StronglyTyped.FeatureFlags.FeatureFlagsAttribute";
+    private const string _featureListAttributeName = "FeatureListAttribute";
+    private const string _featureListAttribute = "StronglyTyped.FeatureFlags.FeatureListAttribute";
 
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
@@ -15,8 +15,8 @@ internal class Parser {
         foreach (var attributeList in classDeclaration.AttributeLists)
             foreach (var attribute in attributeList.Attributes) {
                 var attributeConstructor = context.SemanticModel.GetSymbolInfo(attribute).Symbol as IMethodSymbol;
-                if (attributeConstructor is not null && IsFromFeatureFlagsAttribute(attributeConstructor)) {
-                    var boundAttributes = classSymbol.GetAttributes().First(i => i.AttributeClass!.Name == _featureFlagsAttributeName);
+                if (attributeConstructor is not null && IsFromFeatureListAttribute(attributeConstructor)) {
+                    var boundAttributes = classSymbol.GetAttributes().First(i => i.AttributeClass!.Name == _featureListAttributeName);
                     var fieldName = (string)boundAttributes.ConstructorArguments.First().Value!;
                     return (classDeclaration, fieldName);
                 }
@@ -24,8 +24,8 @@ internal class Parser {
 
         return null;
 
-        static bool IsFromFeatureFlagsAttribute(ISymbol attributeConstructor) 
-            => attributeConstructor.ContainingType.ToDisplayString() == _featureFlagsAttribute;
+        static bool IsFromFeatureListAttribute(ISymbol attributeConstructor) 
+            => attributeConstructor.ContainingType.ToDisplayString() == _featureListAttribute;
     }
 
     public IReadOnlyList<FlagsSelector> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {

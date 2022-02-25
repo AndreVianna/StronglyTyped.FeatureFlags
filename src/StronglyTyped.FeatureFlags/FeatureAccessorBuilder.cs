@@ -1,14 +1,14 @@
 ﻿namespace StronglyTyped.FeatureFlags;
 
-public sealed class FeatureFlagsFactoryBuilder : IFlagsFactoryOptions {
+public sealed class FeatureAccessorBuilder : IFeatureAccessorBuilderOptions {
     private readonly IServiceCollection _services;
 
-    public FeatureFlagsFactoryBuilder(IServiceCollection services) {
+    public FeatureAccessorBuilder(IServiceCollection services) {
         _services = services;
     }
 
     public void TryAddProvider<TProvider>(Func<IServiceProvider, TProvider>? createProvider = null) where TProvider : class, IFeatureProvider {
-        if (FeatureFlagsFactory.Features.Any(i => i.ProviderType == typeof(TProvider))) return;
+        if (FeatureAccessor.Features.Any(i => i.ProviderType == typeof(TProvider))) return;
         if (createProvider is not null) _services.TryAddTransient(createProvider);
         else _services.TryAddTransient<TProvider>();
         RegisterProvider<TProvider>();
@@ -23,13 +23,13 @@ public sealed class FeatureFlagsFactoryBuilder : IFlagsFactoryOptions {
         var features = provider.GetAll().ToArray();
         EnsureFeatureUniqueness<TProvider>(features);
         foreach (var feature in features) {
-            FeatureFlagsFactory.Features.Add(new FeatureEntity(feature.Name, feature.Type, typeof(TProvider)));
-            if (feature.Type == FlagType.Static) FeatureFlagsFactory.StaticFlags.Add(feature.Name, feature);
+            FeatureAccessor.Features.Add(new Feature(feature.Name, typeof(TProvider), feature.Lifecycle, feature.IsEnabled));
+            if (feature.Lifecycle == FeatureStateLifecycle.Static) FeatureAccessor.StaticFlags.Add(feature.Name, feature);
         }
     }
 
     private static void EnsureFeatureUniqueness<TProvider>(IEnumerable<IFeature> features) where TProvider : class, IFeatureProvider {
-        var duplicatedFeatures = FeatureFlagsFactory.Features
+        var duplicatedFeatures = FeatureAccessor.Features
             .Join(features, e => e.Name, f => f.Name, (i, _) => i)
             .GroupBy(i => i.ProviderType).ToArray();
         if (duplicatedFeatures.Length == 0) return;
@@ -44,5 +44,5 @@ public sealed class FeatureFlagsFactoryBuilder : IFlagsFactoryOptions {
     }
 
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Builder pattern.")]
-    internal FeatureFlagsFactory Build(IServiceProvider serviceProvider) => new(serviceProvider);
+    internal FeatureAccessor Build(IServiceProvider serviceProvider) => new(serviceProvider);
 }

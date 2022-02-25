@@ -1,7 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.TestConsumer;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class Features {
     private const string _someValue = "SomeValue";
     private static readonly string[] _availableFeatures = {
         "SaluteUniverse",

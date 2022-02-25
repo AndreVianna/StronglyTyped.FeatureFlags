@@ -12,7 +12,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-public interface IFeatureAccessor
+public interface ITestFeatures
 {
 }
 ";
@@ -24,13 +24,13 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-partial class FeatureAccessor : IFeatureAccessor
+partial class TestFeatures : ITestFeatures
 {
-    private readonly IFlagsFactory _flagsFactory;
+    private readonly IFeatureAccessor _featureAccessor;
 
-    public FeatureAccessor(IFlagsFactory flagsFactory)
+    public TestFeatures(IFeatureAccessor featureAccessor)
     {
-        _flagsFactory = flagsFactory;
+        _featureAccessor = featureAccessor;
     }
 }
 ";
@@ -43,10 +43,10 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-public interface IFeatureAccessor
+public interface ITestFeatures
 {
-    IFlag Feature1 { get; }
-    IFlag Feature2 { get; }
+    IFeatureState Feature1 { get; }
+    IFeatureState Feature2 { get; }
 }
 ";
 
@@ -57,16 +57,16 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-partial class FeatureAccessor : IFeatureAccessor
+partial class TestFeatures : ITestFeatures
 {
-    private readonly IFlagsFactory _flagsFactory;
+    private readonly IFeatureAccessor _featureAccessor;
 
-    public FeatureAccessor(IFlagsFactory flagsFactory)
+    public TestFeatures(IFeatureAccessor featureAccessor)
     {
-        _flagsFactory = flagsFactory;
+        _featureAccessor = featureAccessor;
     }
-    public IFlag Feature1 => _flagsFactory.For(nameof(Feature1));
-    public IFlag Feature2 => _flagsFactory.For(nameof(Feature2));
+    public IFeatureState Feature1 => _featureAccessor.For(nameof(Feature1));
+    public IFeatureState Feature2 => _featureAccessor.For(nameof(Feature2));
 }
 ";
     #endregion
@@ -75,14 +75,14 @@ partial class FeatureAccessor : IFeatureAccessor
     [InlineData("string")]
     [InlineData("String")]
     [InlineData("System.String")]
-    public async Task SourceFile_WithAClass_WithFeatureFlagsAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
+    public async Task SourceFile_WithAClass_WithFeatureListAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
         var code = @$"
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {{
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {{
     private static readonly {arrayType}[] _availableFeatures = {{
         ""Feature1"",
         ""Feature2""
@@ -104,8 +104,8 @@ public partial class FeatureAccessor {{
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests {
-    [FeatureFlags(nameof(_availableFeatures))]
-    public partial class FeatureAccessor {
+    [FeatureList(nameof(_availableFeatures))]
+    public partial class TestFeatures {
         private static readonly string[] _availableFeatures = {
             ""Feature1"",
             ""Feature2""
@@ -127,8 +127,8 @@ namespace SourceGeneration.Tests {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -149,7 +149,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-public partial class FeatureAccessor {
+public partial class TestFeatures {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -164,14 +164,14 @@ public partial class FeatureAccessor {
     }
 
     [Fact]
-    public async Task SourceFile_WithAClass_WithoutFeatureFlagsAttribute_DoesNotGenerateCode() {
+    public async Task SourceFile_WithAClass_WithoutFeatureListAttribute_DoesNotGenerateCode() {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
 [Obsolete]
-public partial class FeatureAccessor {
+public partial class TestFeatures {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -192,8 +192,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(""_availableFeatures"")]
-public partial class FeatureAccessor {
+[FeatureList(""_availableFeatures"")]
+public partial class TestFeatures {
     public static string[] AvailableFeatures { get; }
 }
 ";
@@ -212,8 +212,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     public static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -235,8 +235,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     private static string _availableFeatures;
 }
 ";
@@ -255,8 +255,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {{
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {{
     private static readonly string[] _availableFeatures;
 }}
 ";
@@ -276,8 +276,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     private static readonly int[] _availableFeatures = {
         1,
         2
@@ -299,8 +299,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     private static readonly String[] _availableFeatures = {
     };
 }
@@ -321,8 +321,8 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureFlags(nameof(_availableFeatures))]
-public partial class FeatureAccessor {
+[FeatureList(nameof(_availableFeatures))]
+public partial class TestFeatures {
     private const string _feature3 = ""Feature3"";
 
     private static readonly String[] _availableFeatures = {

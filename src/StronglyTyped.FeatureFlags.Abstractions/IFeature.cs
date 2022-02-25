@@ -1,7 +1,8 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace StronglyTyped.FeatureFlags;
 
-public interface IFeature : IFlag {
+public interface IFeature : IFeatureState {
     string Name { get; }
-    FlagType Type { get; }
+    Type ProviderType { get; }
+    FeatureStateLifecycle Lifecycle { get; }
 }

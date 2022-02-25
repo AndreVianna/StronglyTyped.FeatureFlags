@@ -1,11 +1,11 @@
 ﻿namespace StronglyTyped.FeatureFlags.Abstractions.Tests;
 
 [ExcludeFromCodeCoverage]
-public class FeatureFlagsAttributeTests {
+public class FeatureListAttributeTests {
     [Fact]
-    public void FeatureFlagsAttribute_IsAClass() {
+    public void FeatureListAttribute_IsAClass() {
         // Arrange
-        var attribute = new FeatureFlagsAttribute("SomeField");
+        var attribute = new FeatureListAttribute("SomeField");
 
         // Assert
         attribute.FieldName.Should().Be("SomeField");

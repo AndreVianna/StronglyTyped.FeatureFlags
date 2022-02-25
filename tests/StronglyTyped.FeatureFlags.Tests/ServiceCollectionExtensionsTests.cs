@@ -5,8 +5,8 @@ using TestDoubles;
 [Collection("Sequential")]
 public sealed class ServiceCollectionExtensionsTests : IDisposable {
     public void Dispose() {
-        FeatureFlagsFactory.Features.Clear();
-        FeatureFlagsFactory.StaticFlags.Clear();
+        FeatureAccessor.Features.Clear();
+        FeatureAccessor.StaticFlags.Clear();
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public sealed class ServiceCollectionExtensionsTests : IDisposable {
 
         using var serviceProvider = services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
-        var provider = scope.ServiceProvider.GetRequiredService<IFlagsFactory>();
+        var provider = scope.ServiceProvider.GetRequiredService<IFeatureAccessor>();
 
         // Assert
         configWasCalled.Should().BeTrue();

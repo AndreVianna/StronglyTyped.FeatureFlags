@@ -3,8 +3,8 @@
 [ExcludeFromCodeCoverage]
 public class FlagsExtensionsTests {
 
-    private readonly IFlag _enabledFlag = new Flag(true);
-    private readonly IFlag _disabledFlag = new Flag(false);
+    private readonly IFeatureState _enabledFlag = new Flag(true);
+    private readonly IFeatureState _disabledFlag = new Flag(false);
 
     private static bool _doneThis;
     private static bool _doneThat;

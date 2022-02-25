@@ -12,29 +12,17 @@ public class ConfigurationFeatureProviderTests {
         => new(_subConfiguration, section);
 
     [Fact]
-    public void Name_ReturnsName() {
-        // Arrange
-        var provider = CreateProvider();
-
-        // Act
-        var result = provider.Name;
-
-        // Assert
-        result.Should().Be("Configuration");
-    }
-
-    [Fact]
     public void GetAll_ReturnsAllFeatures() {
         // Arrange
         var provider = CreateProvider();
         var expectedFeatures = new[] {
-            new Feature("Feature1", FlagType.Static, true),
-            new Feature("Feature2", FlagType.Static, false),
-            new Feature("Feature3", FlagType.Scoped, true),
-            new Feature("Feature4", FlagType.Transient, true),
-            new Feature("Feature5", FlagType.Static, false),
-            new Feature("Feature6", FlagType.Static, false),
-            new Feature("Feature7", FlagType.Static, false)
+            new Feature("Feature1", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, true),
+            new Feature("Feature2", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false),
+            new Feature("Feature3", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Scoped, true),
+            new Feature("Feature4", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Transient, true),
+            new Feature("Feature5", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false),
+            new Feature("Feature6", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false),
+            new Feature("Feature7", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false)
         };
 
         // Act
@@ -49,8 +37,8 @@ public class ConfigurationFeatureProviderTests {
         // Arrange
         var provider = CreateProvider("OtherFeatures");
         var expectedFeatures = new[] {
-            new Feature("FeatureA", FlagType.Static, true),
-            new Feature("FeatureB", FlagType.Static, false),
+            new Feature("FeatureA", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, true),
+            new Feature("FeatureB", typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false),
         };
 
         // Act
@@ -73,14 +61,14 @@ public class ConfigurationFeatureProviderTests {
     }
 
     [Theory]
-    [InlineData("Feature1", FlagType.Static, true)]
-    [InlineData("Feature2", FlagType.Static, false)]
-    [InlineData("Feature3", FlagType.Scoped, true)]
-    [InlineData("Feature4", FlagType.Transient, true)]
-    [InlineData("Feature5", FlagType.Static, false)]
-    [InlineData("Feature6", FlagType.Static, false)]
-    [InlineData("Feature7", FlagType.Static, false)]
-    public void GetByName_ForExistingFeature_ReturnsExpectedValue(string featureName, FlagType expectedType, bool expectedState) {
+    [InlineData("Feature1", FeatureStateLifecycle.Static, true)]
+    [InlineData("Feature2", FeatureStateLifecycle.Static, false)]
+    [InlineData("Feature3", FeatureStateLifecycle.Scoped, true)]
+    [InlineData("Feature4", FeatureStateLifecycle.Transient, true)]
+    [InlineData("Feature5", FeatureStateLifecycle.Static, false)]
+    [InlineData("Feature6", FeatureStateLifecycle.Static, false)]
+    [InlineData("Feature7", FeatureStateLifecycle.Static, false)]
+    public void GetByName_ForExistingFeature_ReturnsExpectedValue(string featureName, FeatureStateLifecycle expectedLifecycle, bool expectedState) {
         // Arrange
         var provider = CreateProvider();
 
@@ -90,7 +78,7 @@ public class ConfigurationFeatureProviderTests {
         // Assert
         var subject = result.Should().BeOfType<Feature>().Subject;
         subject.Name.Should().Be(featureName);
-        subject.Type.Should().Be(expectedType);
+        subject.Lifecycle.Should().Be(expectedLifecycle);
         subject.IsEnabled.Should().Be(expectedState);
     }
 

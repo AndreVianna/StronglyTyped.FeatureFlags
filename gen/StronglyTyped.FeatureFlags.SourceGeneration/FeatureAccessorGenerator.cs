@@ -1,7 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 [Generator]
-public class FeatureFlagsGenerator : IIncrementalGenerator {
+public class FeatureAccessorGenerator : IIncrementalGenerator {
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         var flagsSelectorClasses = context.SyntaxProvider

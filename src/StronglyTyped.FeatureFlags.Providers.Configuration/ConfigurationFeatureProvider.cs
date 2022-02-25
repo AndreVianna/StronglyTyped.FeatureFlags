@@ -8,8 +8,6 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
         _featuresSection = config.GetSection(sectionName);
     }
 
-    public string Name => "Configuration";
-
     public IEnumerable<IFeature> GetAll() {
         return _featuresSection.Exists()
             ? _featuresSection.GetChildren().Select(i => MapSection(i)!).ToArray()
@@ -25,13 +23,13 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
 
     private static Feature? MapSection(IConfigurationSection section)
         => section.Exists()
-            ? new Feature(section.Key, GetFlagType(section), GetFlagState(section))
+            ? new Feature(section.Key, typeof(ConfigurationFeatureProvider), GetFlagType(section), GetFlagState(section))
             : null;
 
-    private static FlagType GetFlagType(IConfiguration section) {
-        return Enum.TryParse<FlagType>(section["Type"], true, out var enumValue)
+    private static FeatureStateLifecycle GetFlagType(IConfiguration section) {
+        return Enum.TryParse<FeatureStateLifecycle>(section["Type"], true, out var enumValue)
                 ? enumValue
-                : FlagType.Static;
+                : FeatureStateLifecycle.Static;
     }
 
     private static bool GetFlagState(IConfigurationSection section) {

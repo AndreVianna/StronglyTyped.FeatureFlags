@@ -43,13 +43,12 @@ public interface I{flagsSelector.Name}
 ");
         foreach (var feature in flagsSelector.Features) {
             _builder.Append("" +
-@$"    IFlag {feature} {{ get; }}
+@$"    IFeatureState {feature} {{ get; }}
 ");
         }
         _builder.Append("" +
-@$"}}
+@"}
 ");
-        _builder.ToString();
     }
 
 
@@ -62,21 +61,21 @@ namespace {flagsSelector.Namespace};
 
 partial class {flagsSelector.Name} : I{flagsSelector.Name}
 {{
-    private readonly IFlagsFactory _flagsFactory;
+    private readonly IFeatureAccessor _featureAccessor;
 
-    public {flagsSelector.Name}(IFlagsFactory flagsFactory)
+    public {flagsSelector.Name}(IFeatureAccessor featureAccessor)
     {{
-        _flagsFactory = flagsFactory;
+        _featureAccessor = featureAccessor;
     }}
 ");
 
         foreach (var feature in flagsSelector.Features) {
             _builder.Append("" +
-@$"    public IFlag {feature} => _flagsFactory.For(nameof({feature}));
+@$"    public IFeatureState {feature} => _featureAccessor.For(nameof({feature}));
 ");
         }
         _builder.Append("" +
-        @$"}}
+@"}
 ");
     }
 }
