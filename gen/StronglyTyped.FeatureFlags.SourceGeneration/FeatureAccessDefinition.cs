@@ -1,7 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
-internal class FeatureAccessorDefinition {
-    public FeatureAccessorDefinition(string @namespace, string name) {
+internal class FeatureAccessDefinition {
+    public FeatureAccessDefinition(string @namespace, string name) {
         Namespace = @namespace;
         Name = name;
     }

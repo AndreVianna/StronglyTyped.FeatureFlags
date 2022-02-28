@@ -3,32 +3,32 @@ using TestDoubles;
 
 [ExcludeFromCodeCoverage]
 [Collection("Sequential")]
-public sealed class FeatureAccessorTests : IDisposable {
+public sealed class FeatureReaderTests : IDisposable {
 
     private readonly ProcessSpy _processSpy = new();
     private readonly IServiceCollection _serviceCollection = Substitute.For<ServiceCollection>();
 
-    public FeatureAccessorTests() {
+    public FeatureReaderTests() {
         _serviceCollection.AddSingleton(_processSpy);
     }
 
-    private FeatureAccessor CreateFactory() {
-        var builder = new FeatureAccessorBuilder(_serviceCollection);
+    private FeatureReader CreateReader() {
+        var builder = new FeatureReaderBuilder(_serviceCollection);
         builder.TryAddProvider<FakeProvider>();
-        var accessor = builder.Build(_serviceCollection.BuildServiceProvider());
+        var reader = builder.Build(_serviceCollection.BuildServiceProvider());
         _processSpy.ClearCalls();
-        return accessor;
+        return reader;
     }
 
     public void Dispose() {
-        FeatureAccessor.Features.Clear();
-        FeatureAccessor.StaticFlags.Clear();
+        FeatureReader.Features.Clear();
+        FeatureReader.StaticFlags.Clear();
     }
 
     [Fact]
     public void For_ExistingStaticFeature_ReturnsFlag_WithoutCallingProvider() {
         // Arrange
-        var factory = CreateFactory();
+        var factory = CreateReader();
         const string name = "Feature1";
 
         // Act
@@ -42,7 +42,7 @@ public sealed class FeatureAccessorTests : IDisposable {
     [Fact]
     public void For_ExistingScopedFeature_CallsProviderOnlyOnce_And_ReturnsFlag() {
         // Arrange
-        var factory = CreateFactory();
+        var factory = CreateReader();
         const string name = "Feature2";
         var previous = factory.For(name);
 
@@ -57,7 +57,7 @@ public sealed class FeatureAccessorTests : IDisposable {
     [Fact]
     public void For_ExistingTransientFeature_CallsProvider_And_ReturnsFlag() {
         // Arrange
-        var factory = CreateFactory();
+        var factory = CreateReader();
         const string name = "Feature3";
 
         // Act
@@ -71,7 +71,7 @@ public sealed class FeatureAccessorTests : IDisposable {
     [Fact]
     public void For_NonRegisteredFeature_ReturnsNullFlag() {
         // Arrange
-        var factory = CreateFactory();
+        var factory = CreateReader();
         const string name = "Invalid";
 
         // Act
@@ -85,7 +85,7 @@ public sealed class FeatureAccessorTests : IDisposable {
     [Fact]
     public void For_RemovedTransientFeature_ReturnsNullFlag() {
         // Arrange
-        var factory = CreateFactory();
+        var factory = CreateReader();
         const string name = "Feature8";
 
         // Act

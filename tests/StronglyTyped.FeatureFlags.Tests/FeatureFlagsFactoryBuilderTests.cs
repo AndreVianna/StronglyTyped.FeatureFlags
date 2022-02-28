@@ -13,15 +13,15 @@ public sealed class FeatureFlagsFactoryBuilderTests : IDisposable {
         _serviceCollection.AddSingleton(_processSpy);
     }
 
-    private FeatureAccessorBuilder CreateBuilder() {
-        var builder = new FeatureAccessorBuilder(_serviceCollection);
+    private FeatureReaderBuilder CreateBuilder() {
+        var builder = new FeatureReaderBuilder(_serviceCollection);
         _processSpy.ClearCalls();
         return builder;
     }
 
     public void Dispose() {
-        FeatureAccessor.Features.Clear();
-        FeatureAccessor.StaticFlags.Clear();
+        FeatureReader.Features.Clear();
+        FeatureReader.StaticFlags.Clear();
     }
 
     [Fact]

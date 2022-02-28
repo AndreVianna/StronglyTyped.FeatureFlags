@@ -2,8 +2,8 @@
 
 
 internal class Parser {
-    private const string _featureListAttributeName = "FeatureListAttribute";
-    private const string _featureListAttribute = "StronglyTyped.FeatureFlags.FeatureListAttribute";
+    private const string _attributeName = "FeatureAccessDefinitionAttribute";
+    private const string _attributeFullName = "StronglyTyped.FeatureFlags.FeatureAccessDefinitionAttribute";
 
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
@@ -15,8 +15,8 @@ internal class Parser {
         foreach (var attributeList in classDeclaration.AttributeLists)
             foreach (var attribute in attributeList.Attributes) {
                 var attributeConstructor = context.SemanticModel.GetSymbolInfo(attribute).Symbol as IMethodSymbol;
-                if (attributeConstructor is not null && IsFromFeatureListAttribute(attributeConstructor)) {
-                    var boundAttributes = classSymbol.GetAttributes().First(i => i.AttributeClass!.Name == _featureListAttributeName);
+                if (attributeConstructor is not null && IsFromFeatureReaderDefinitionAttribute(attributeConstructor)) {
+                    var boundAttributes = classSymbol.GetAttributes().First(i => i.AttributeClass!.Name == _attributeName);
                     var fieldName = (string)boundAttributes.ConstructorArguments.First().Value!;
                     return (classDeclaration, fieldName);
                 }
@@ -24,17 +24,17 @@ internal class Parser {
 
         return null;
 
-        static bool IsFromFeatureListAttribute(ISymbol attributeConstructor) 
-            => attributeConstructor.ContainingType.ToDisplayString() == _featureListAttribute;
+        static bool IsFromFeatureReaderDefinitionAttribute(ISymbol attributeConstructor) 
+            => attributeConstructor.ContainingType.ToDisplayString() == _attributeFullName;
     }
 
-    public IReadOnlyList<FeatureAccessorDefinition> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {
-        var results = new List<FeatureAccessorDefinition>();
+    public IReadOnlyList<FeatureAccessDefinition> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {
+        var results = new List<FeatureAccessDefinition>();
         foreach (var (classDeclaration, fieldName) in selectors) {
             cancellationToken.ThrowIfCancellationRequested();
             var (@namespace, name) = ExtractClassDefinition(classDeclaration);
             if (@namespace is null) continue;
-            var result = new FeatureAccessorDefinition(@namespace, name);
+            var result = new FeatureAccessDefinition(@namespace, name);
             var field = classDeclaration
                 .Members
                 .OfType<FieldDeclarationSyntax>()

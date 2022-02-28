@@ -3,14 +3,14 @@
 namespace StronglyTyped.FeatureFlags;
 using static FeatureStateLifecycle;
 
-public sealed class FeatureAccessor : IFeatureAccessor {
+public sealed class FeatureReader : IFeatureReader {
     private readonly IServiceProvider _serviceProvider;
     private readonly IDictionary<string, IFeatureState> _cachedFlags;
 
     internal static readonly IDictionary<string, IFeatureState> StaticFlags = new Dictionary<string, IFeatureState>();
     internal static readonly ICollection<Feature> Features = new HashSet<Feature>();
 
-    public FeatureAccessor(IServiceProvider serviceProvider) {
+    public FeatureReader(IServiceProvider serviceProvider) {
         _serviceProvider = serviceProvider;
         _cachedFlags = new Dictionary<string, IFeatureState>();
     }

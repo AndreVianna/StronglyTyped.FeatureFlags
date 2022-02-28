@@ -8,8 +8,8 @@ namespace StronglyTyped.FeatureFlags.SourceGeneration.Tests.Helpers;
 internal static class GeneratorRunner {
     internal static async Task<(Diagnostic[], GeneratedSourceResult[])> RunAsync(string code) {
         var runResult = await RunGeneratorAsync(
-            new FeatureAccessorGenerator(),
-            new[] { typeof(FeatureListAttribute).Assembly },
+            new FeatureAccessGenerator(),
+            new[] { typeof(FeatureAccessDefinitionAttribute).Assembly },
             new[] { code }).ConfigureAwait(false);
 
         return (runResult.Diagnostics.ToArray(), runResult.GeneratedSources.ToArray());

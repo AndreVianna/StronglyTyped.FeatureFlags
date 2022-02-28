@@ -26,11 +26,11 @@ namespace SourceGeneration.Tests;
 
 partial class TestFeatures : ITestFeatures
 {
-    private readonly IFeatureAccessor _featureAccessor;
+    private readonly IFeatureReader _featureReader;
 
-    public TestFeatures(IFeatureAccessor featureAccessor)
+    public TestFeatures(IFeatureReader featureReader)
     {
-        _featureAccessor = featureAccessor;
+        _featureReader = featureReader;
     }
 }
 ";
@@ -58,14 +58,14 @@ namespace SourceGeneration.Tests;
 
 partial class TestFeatures : ITestFeatures
 {
-    private readonly IFeatureAccessor _featureAccessor;
+    private readonly IFeatureReader _featureReader;
 
-    public TestFeatures(IFeatureAccessor featureAccessor)
+    public TestFeatures(IFeatureReader featureReader)
     {
-        _featureAccessor = featureAccessor;
+        _featureReader = featureReader;
     }
-    public IFeatureState Feature1 => _featureAccessor.For(nameof(Feature1));
-    public IFeatureState Feature2 => _featureAccessor.For(nameof(Feature2));
+    public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
+    public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
 }
 ";
 
@@ -94,15 +94,15 @@ namespace SourceGeneration.Tests;
 
 partial class TestFeatures : ITestFeatures
 {
-    private readonly IFeatureAccessor _featureAccessor;
+    private readonly IFeatureReader _featureReader;
 
-    public TestFeatures(IFeatureAccessor featureAccessor)
+    public TestFeatures(IFeatureReader featureReader)
     {
-        _featureAccessor = featureAccessor;
-        SubSection = new SubSection(_featureAccessor);
+        _featureReader = featureReader;
+        SubSection = new SubSection(_featureReader);
     }
-    public IFeatureState Feature1 => _featureAccessor.For(nameof(Feature1));
-    public IFeatureState Feature2 => _featureAccessor.For(nameof(Feature2));
+    public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
+    public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
     public ISubSection SubSection { get; }
 }
 ";
@@ -112,13 +112,13 @@ partial class TestFeatures : ITestFeatures
     [InlineData("string")]
     [InlineData("String")]
     [InlineData("System.String")]
-    public async Task SourceFile_WithAClass_WithFeatureListAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
+    public async Task SourceFile_WithAClass_WithFeatureReaderDefinitionAttribute_AndAPrivateStringArrayField_InitializedWithTwoFeatures_GeneratesCode_WithTwoProperties(string arrayType) {
         var code = @$"
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {{
     private static readonly {arrayType}[] _availableFeatures = {{
         ""Feature1"",
@@ -141,7 +141,7 @@ public partial class TestFeatures {{
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests {
-    [FeatureList(nameof(_availableFeatures))]
+    [FeatureAccessDefinition(nameof(_availableFeatures))]
     public partial class TestFeatures {
         private static readonly string[] _availableFeatures = {
             ""Feature1"",
@@ -166,7 +166,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
@@ -189,7 +189,7 @@ public partial class TestFeatures {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
@@ -226,7 +226,7 @@ public partial class TestFeatures {
     }
 
     [Fact]
-    public async Task SourceFile_WithAClass_WithoutFeatureListAttribute_DoesNotGenerateCode() {
+    public async Task SourceFile_WithAClass_WithoutFeatureReaderDefinitionAttribute_DoesNotGenerateCode() {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
@@ -254,7 +254,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(""_availableFeatures"")]
+[FeatureAccessDefinition(""_availableFeatures"")]
 public partial class TestFeatures {
     public static string[] AvailableFeatures { get; }
 }
@@ -274,7 +274,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     public static readonly string[] _availableFeatures = {
         ""Feature1"",
@@ -297,7 +297,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private static string _availableFeatures;
 }
@@ -317,7 +317,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {{
     private static readonly string[] _availableFeatures;
 }}
@@ -338,7 +338,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private static readonly int[] _availableFeatures = {
         1,
@@ -361,7 +361,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private static readonly String[] _availableFeatures = {
     };
@@ -383,7 +383,7 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureList(nameof(_availableFeatures))]
+[FeatureAccessDefinition(nameof(_availableFeatures))]
 public partial class TestFeatures {
     private const string _feature3 = ""Feature3"";
 

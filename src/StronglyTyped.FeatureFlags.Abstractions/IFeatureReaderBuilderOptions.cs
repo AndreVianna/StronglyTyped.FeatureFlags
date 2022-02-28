@@ -1,6 +1,6 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace StronglyTyped.FeatureFlags;
 
-public interface IFeatureAccessorBuilderOptions {
+public interface IFeatureReaderBuilderOptions {
     void TryAddProvider<TProvider>(Func<IServiceProvider, TProvider>? createProvider = null) where TProvider : class, IFeatureProvider;
 }
