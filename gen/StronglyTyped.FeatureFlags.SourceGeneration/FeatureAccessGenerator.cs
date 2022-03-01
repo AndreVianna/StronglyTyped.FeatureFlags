@@ -14,7 +14,7 @@ public class FeatureAccessGenerator : IIncrementalGenerator {
         context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles(spc, source!));
     }
 
-    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<FeatureAccessDefinition> selectors) {
+    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<FeaturesSectionDefinition> selectors) {
         if (selectors.Length == 0)
             return;
 

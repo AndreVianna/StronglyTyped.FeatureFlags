@@ -2,9 +2,9 @@
 namespace StronglyTyped.FeatureFlags;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class FeatureAccessDefinitionAttribute : Attribute
+public class FeaturesSectionDefinitionAttribute : Attribute
 {
-    public FeatureAccessDefinitionAttribute(params string[] basePath) {
+    public FeaturesSectionDefinitionAttribute(params string[] basePath) {
         BasePath = basePath;
     }
 

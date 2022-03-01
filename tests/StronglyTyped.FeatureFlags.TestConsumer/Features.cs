@@ -1,16 +1,19 @@
 ﻿namespace StronglyTyped.FeatureFlags.TestConsumer;
 
-[FeatureAccessDefinition]
+[FeaturesSectionDefinition]
 public partial class Features {
-    [FeatureGroup]
-    private static readonly string[] _availableFeatures = {
+    [Features]
+    private static readonly string[] _features = {
         "SaluteUniverse",
         "OtherFeature",
-        nameof(SubFeatures)
     };
-    [FeatureGroup]
-    private static readonly string[] _availableFeatures2 = {
+    [Features]
+    private static readonly string[] _moreFeatures = {
         "SaluteUniverse2",
         "OtherFeature2",
+    };
+    [Sections]
+    private static readonly string[] _sections = {
+        nameof(SubFeatures)
     };
 }

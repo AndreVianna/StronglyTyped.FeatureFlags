@@ -1,9 +1,9 @@
 ﻿namespace StronglyTyped.FeatureFlags.TestConsumer;
 
-[FeatureAccessDefinition]
+[FeaturesSectionDefinition]
 public partial class SubFeatures {
-    [FeatureGroup]
-    private static readonly string[] _availableFeatures = {
+    [Features]
+    private static readonly string[] _features = {
         "Feature1",
         "Feature2",
     };
