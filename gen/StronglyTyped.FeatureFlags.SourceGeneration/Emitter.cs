@@ -6,9 +6,6 @@ internal class Emitter {
 
     internal void EmitFiles(SourceProductionContext context, IReadOnlyList<FeatureAccessDefinition> definitions) {
         foreach (var definition in definitions) {
-            var features = definition.Groups.SelectMany(i => i.Features).ToArray();
-            var sections = definition.Groups.SelectMany(i => i.Sections).ToArray();
-
             context.CancellationToken.ThrowIfCancellationRequested();
             var interfaceCode = EmitInterface(definition);
             context.AddSource($"I{definition.ClassName}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
@@ -38,8 +35,7 @@ internal class Emitter {
         var features = definition.Groups.SelectMany(i => i.Features.Select(f => new { i.Path, Name = f })).ToArray();
         var sections = definition.Groups.SelectMany(i => i.Sections.Select(s => new { i.Path, Name = s })).ToArray();
 
-        _builder.Append("" +
-                        @$"
+        _builder.Append(@$"
 using StronglyTyped.FeatureFlags;
 
 namespace {definition.Namespace};
@@ -48,14 +44,14 @@ public interface I{definition.ClassName}
 {{
 ");
         foreach (var feature in features)
-            _builder.Append($"    IFeatureState {feature.Name} {{ get; }}\r\n");
+            _builder.AppendLine($"    IFeatureState {feature.Name} {{ get; }}");
 
-        if (sections.Any() && features.Any()) _builder.Append("\r\n");
+        if (sections.Any() && features.Any()) _builder.AppendLine();
 
         foreach (var section in sections)
-            _builder.Append($"    I{section.Name} {section.Name} {{ get; }}\r\n");
+            _builder.AppendLine($"    I{section.Name} {section.Name} {{ get; }}");
 
-        _builder.Append("}\r\n");
+        _builder.AppendLine("}");
     }
 
 
@@ -63,8 +59,7 @@ public interface I{definition.ClassName}
         var features = definition.Groups.SelectMany(i => i.Features.Select(f => new { i.Path, Name = f })).ToArray();
         var sections = definition.Groups.SelectMany(i => i.Sections.Select(s => new { i.Path, Name = s })).ToArray();
 
-        _builder.Append("" +
-                        @$"
+        _builder.Append(@$"
 using StronglyTyped.FeatureFlags;
 
 namespace {definition.Namespace};
@@ -79,17 +74,17 @@ partial class {definition.ClassName} : I{definition.ClassName}
 ");
 
         foreach (var section in sections)
-            _builder.Append($"        {section.Name} = new {section.Name}(_featureReader);\r\n");
-        _builder.Append("    }\r\n");
+            _builder.AppendLine($"        {section.Name} = new {section.Name}(_featureReader);");
+        _builder.AppendLine("    }");
 
-        if (features.Any()) _builder.Append("\r\n");
+        if (features.Any()) _builder.AppendLine();
         foreach (var feature in features)
-            _builder.Append($"    public IFeatureState {feature.Name} => _featureReader.For(nameof({feature.Name}));\r\n");
+            _builder.AppendLine($"    public IFeatureState {feature.Name} => _featureReader.For(nameof({feature.Name}));");
 
-        if (sections.Any()) _builder.Append("\r\n");
+        if (sections.Any()) _builder.AppendLine();
         foreach (var section in sections)
-            _builder.Append($"    public I{section.Name} {section.Name} {{ get; }}\r\n");
+            _builder.AppendLine($"    public I{section.Name} {section.Name} {{ get; }}");
 
-        _builder.Append("}\r\n");
+        _builder.AppendLine("}");
     }
 }
