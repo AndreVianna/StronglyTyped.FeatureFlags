@@ -2,9 +2,9 @@
 
 [AttributeUsage(AttributeTargets.Field)]
 public class FeatureGroupAttribute : Attribute {
-    public FeatureGroupAttribute(params string[] sourcePath) {
-        SourcePath = sourcePath;
+    public FeatureGroupAttribute(params string[] groupPath) {
+        GroupPath = groupPath;
     }
 
-    public string[] SourcePath { get; }
+    public string[] GroupPath { get; }
 }

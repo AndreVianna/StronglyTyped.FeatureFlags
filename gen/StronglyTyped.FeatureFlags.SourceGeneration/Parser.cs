@@ -1,76 +1,66 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
-
 internal class Parser {
-    private const string _attributeName = "FeatureAccessDefinitionAttribute";
-    private const string _attributeFullName = "StronglyTyped.FeatureFlags.FeatureAccessDefinitionAttribute";
+    private const string _accessDefinitionAttributeType = "StronglyTyped.FeatureFlags.FeatureAccessDefinitionAttribute";
+    private const string _groupAttributeType = "StronglyTyped.FeatureFlags.FeatureGroupAttribute";
 
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
 
-    internal static (ClassDeclarationSyntax ClassDeclaration, string FieldName)? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) {
+    internal static FeatureAccessDefinition? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) {
         var classDeclaration = (ClassDeclarationSyntax)context.Node;
-        var classSymbol = (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(classDeclaration)!;
+        if (classDeclaration.AttributeLists.SelectMany(i => i.Attributes).All(attribute => !IsOfType(attribute, _accessDefinitionAttributeType))) return null;
+        if (!TryGetPathFor(classDeclaration, _accessDefinitionAttributeType, out var basePath)) return null;
+        var (@namespace, className) = Parser.ExtractClassDefinition(classDeclaration);
+        if (@namespace is null) return null;
 
-        foreach (var attributeList in classDeclaration.AttributeLists)
-            foreach (var attribute in attributeList.Attributes) {
-                var attributeConstructor = context.SemanticModel.GetSymbolInfo(attribute).Symbol as IMethodSymbol;
-                if (attributeConstructor is not null && IsFromFeatureReaderDefinitionAttribute(attributeConstructor)) {
-                    var boundAttributes = classSymbol.GetAttributes().First(i => i.AttributeClass!.Name == _attributeName);
-                    var fieldName = (string)boundAttributes.ConstructorArguments.First().Value!;
-                    return (classDeclaration, fieldName);
-                }
-            }
+        var featureAccessDefinition = new FeatureAccessDefinition(@namespace, className, basePath);
+        foreach (var field in classDeclaration.Members.OfType<FieldDeclarationSyntax>()) {
+            if (field.AttributeLists.SelectMany(i => i.Attributes).All(attribute => !IsOfType(attribute, _groupAttributeType))) continue;
 
-        return null;
-
-        static bool IsFromFeatureReaderDefinitionAttribute(ISymbol attributeConstructor) 
-            => attributeConstructor.ContainingType.ToDisplayString() == _attributeFullName;
-    }
-
-    public IReadOnlyList<FeatureAccessDefinition> GetFlagsSelectors(IEnumerable<(ClassDeclarationSyntax ClassDeclaration, string FieldName)> selectors, CancellationToken cancellationToken) {
-        var results = new List<FeatureAccessDefinition>();
-        foreach (var (classDeclaration, fieldName) in selectors) {
-            cancellationToken.ThrowIfCancellationRequested();
-            var (@namespace, name) = ExtractClassDefinition(classDeclaration);
-            if (@namespace is null) continue;
-            var result = new FeatureAccessDefinition(@namespace, name);
-            var field = classDeclaration
-                .Members
-                .OfType<FieldDeclarationSyntax>()
-                .FirstOrDefault(f => f.Declaration.Variables.Any(i => i.Identifier.Text == fieldName));
-            if (field is null)
-                throw new InvalidOperationException($"A field with name '{fieldName}' was not found.");
             if (field.Declaration.Type is not ArrayTypeSyntax arrayType || !IsString(arrayType.ElementType))
-                throw new InvalidOperationException($"The '{fieldName}' field must be a string array.");
-            if (field.Modifiers.All(i => i.Text != "private"))
-                throw new InvalidOperationException($"The '{fieldName}' must be private.");
+                throw new InvalidOperationException($"The feature group field must be a string array.");
+            if (field.Modifiers.All(i => i.Text is not "private" and not "internal"))
+                throw new InvalidOperationException($"The feature group must be private or internal.");
 
-            results.Add(result);
-            var variable = field.Declaration.Variables.First(i => i.Identifier.Text == fieldName);
-            var initializer = variable.Initializer;
-            if (initializer is null) continue;
-            var arrayItems = initializer.Value.ChildNodes();
-            foreach (var arrayItem in arrayItems) {
-                switch (arrayItem) {
-                    case LiteralExpressionSyntax literal: {
-                        var feature = literal.ChildTokens().First().ValueText;
-                        result.Features.Add(feature);
-                        break;
-                    }
-                    case InvocationExpressionSyntax {Expression: IdentifierNameSyntax} invocation: {
-                        var section = invocation.ArgumentList.Arguments[0].ToString();
-                        result.Sections.Add(section);
-                        break;
+            foreach (var variable in field.Declaration.Variables.Where(v => v.Initializer is not null)) {
+                if (!TryGetPathFor(variable, _groupAttributeType, out var groupPath)) continue;
+                var group = new FeatureGroup(groupPath);
+                var arrayItems = variable.Initializer!.Value.ChildNodes();
+                foreach (var arrayItem in arrayItems) {
+                    switch (arrayItem) {
+                        case LiteralExpressionSyntax literal: {
+                                var feature = literal.ChildTokens().First().ValueText;
+                                group.Features.Add(feature);
+                                break;
+                            }
+                        case InvocationExpressionSyntax { Expression: IdentifierNameSyntax } invocation: {
+                                var section = invocation.ArgumentList.Arguments[0].ToString();
+                                group.Sections.Add(section);
+                                break;
+                            }
                     }
                 }
+                featureAccessDefinition.Groups.Add(group);
             }
         }
+        return featureAccessDefinition;
 
-        return results;
+        bool IsOfType(SyntaxNode attribute, string attributeType) =>
+            context.SemanticModel.GetSymbolInfo(attribute).Symbol is IMethodSymbol attributeConstructor &&
+            attributeConstructor.ContainingType.ToDisplayString() == attributeType;
+
+        bool TryGetPathFor(SyntaxNode member, string attributeType, out string[] path) {
+            path = Array.Empty<string>();
+            var symbol = context.SemanticModel.GetDeclaredSymbol(member)!;
+            var constructorName = attributeType.Split('.').Last();
+            var boundAttributes = symbol.GetAttributes().First(i => i.AttributeClass!.Name == constructorName);
+            path = boundAttributes.ConstructorArguments.First().Values.Select(i => i.Value).Cast<string>().ToArray();
+            return true;
+        }
     }
 
-    private static (string?, string) ExtractClassDefinition(ClassDeclarationSyntax classDeclaration) {
+    internal static (string?, string) ExtractClassDefinition(BaseTypeDeclarationSyntax classDeclaration) {
         var @namespace = classDeclaration.Parent switch {
             FileScopedNamespaceDeclarationSyntax namespaceSyntax => namespaceSyntax.Name.ToString(),
             NamespaceDeclarationSyntax namespaceSyntax => namespaceSyntax.Name.ToString(),

@@ -4,14 +4,17 @@ internal class Emitter {
     private const int _defaultStringBuilderCapacity = 1024;
     private readonly StringBuilder _builder = new(_defaultStringBuilderCapacity);
 
-    internal void EmitFiles(SourceProductionContext context, IReadOnlyList<FeatureAccessDefinition> flagsSelectors) {
-        foreach (var flagsSelector in flagsSelectors) {
-            context.CancellationToken.ThrowIfCancellationRequested();
-            var interfaceCode = EmitInterface(flagsSelector);
-            context.AddSource($"I{flagsSelector.Name}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
+    internal void EmitFiles(SourceProductionContext context, IReadOnlyList<FeatureAccessDefinition> definitions) {
+        foreach (var definition in definitions) {
+            var features = definition.Groups.SelectMany(i => i.Features).ToArray();
+            var sections = definition.Groups.SelectMany(i => i.Sections).ToArray();
 
-            var classCode = EmitClass(flagsSelector);
-            context.AddSource($"{flagsSelector.Name}.g.cs", SourceText.From(classCode, Encoding.UTF8));
+            context.CancellationToken.ThrowIfCancellationRequested();
+            var interfaceCode = EmitInterface(definition);
+            context.AddSource($"I{definition.ClassName}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
+
+            var classCode = EmitClass(definition);
+            context.AddSource($"{definition.ClassName}.g.cs", SourceText.From(classCode, Encoding.UTF8));
         }
     }
 
@@ -32,73 +35,61 @@ internal class Emitter {
     }
 
     private void GenInterface(FeatureAccessDefinition definition) {
+        var features = definition.Groups.SelectMany(i => i.Features.Select(f => new { i.Path, Name = f })).ToArray();
+        var sections = definition.Groups.SelectMany(i => i.Sections.Select(s => new { i.Path, Name = s })).ToArray();
+
         _builder.Append("" +
-@$"
+                        @$"
 using StronglyTyped.FeatureFlags;
 
 namespace {definition.Namespace};
 
-public interface I{definition.Name}
+public interface I{definition.ClassName}
 {{
 ");
-        foreach (var feature in definition.Features) {
-            _builder.Append("" +
-@$"    IFeatureState {feature} {{ get; }}
-");
-        }
+        foreach (var feature in features)
+            _builder.Append($"    IFeatureState {feature.Name} {{ get; }}\r\n");
 
-        foreach (var section in definition.Sections) {
-            _builder.Append(
-@$"    I{section} {section} {{ get; }}
-");
-        }
+        if (sections.Any() && features.Any()) _builder.Append("\r\n");
 
-        _builder.Append("" +
-                        @"}
-");
+        foreach (var section in sections)
+            _builder.Append($"    I{section.Name} {section.Name} {{ get; }}\r\n");
+
+        _builder.Append("}\r\n");
     }
 
 
     private void GenClass(FeatureAccessDefinition definition) {
+        var features = definition.Groups.SelectMany(i => i.Features.Select(f => new { i.Path, Name = f })).ToArray();
+        var sections = definition.Groups.SelectMany(i => i.Sections.Select(s => new { i.Path, Name = s })).ToArray();
+
         _builder.Append("" +
-@$"
+                        @$"
 using StronglyTyped.FeatureFlags;
 
 namespace {definition.Namespace};
 
-partial class {definition.Name} : I{definition.Name}
+partial class {definition.ClassName} : I{definition.ClassName}
 {{
     private readonly IFeatureReader _featureReader;
 
-    public {definition.Name}(IFeatureReader featureReader)
+    public {definition.ClassName}(IFeatureReader featureReader)
     {{
         _featureReader = featureReader;
 ");
 
-        foreach (var section in definition.Sections) {
-            _builder.Append(
-@$"        {section} = new {section}(_featureReader);
-");
-        }
+        foreach (var section in sections)
+            _builder.Append($"        {section.Name} = new {section.Name}(_featureReader);\r\n");
+        _builder.Append("    }\r\n");
 
-        _builder.Append(
-@"    }
-");
+        if (features.Any()) _builder.Append("\r\n");
+        foreach (var feature in features)
+            _builder.Append($"    public IFeatureState {feature.Name} => _featureReader.For(nameof({feature.Name}));\r\n");
 
-        foreach (var feature in definition.Features) {
-            _builder.Append(
-@$"    public IFeatureState {feature} => _featureReader.For(nameof({feature}));
-");
-        }
+        if (sections.Any()) _builder.Append("\r\n");
+        foreach (var section in sections)
+            _builder.Append($"    public I{section.Name} {section.Name} {{ get; }}\r\n");
 
-        foreach (var section in definition.Sections) {
-            _builder.Append(
-@$"    public I{section} {section} {{ get; }}
-");
-        }
-
-        _builder.Append(
-@"}
-");
+        _builder.Append("}\r\n");
     }
 }

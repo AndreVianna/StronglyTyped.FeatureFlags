@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using StronglyTyped.FeatureFlags;
-using StronglyTyped.FeatureFlags.TestConsumer;
 using StronglyTyped.FeatureFlags.Providers.Configuration;
+using StronglyTyped.FeatureFlags.TestConsumer;
 
 var serviceProvider = CreateServiceProvider();
 

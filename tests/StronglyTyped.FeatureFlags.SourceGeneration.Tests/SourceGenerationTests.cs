@@ -64,6 +64,7 @@ partial class TestFeatures : ITestFeatures
     {
         _featureReader = featureReader;
     }
+
     public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
     public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
 }
@@ -81,6 +82,7 @@ public interface ITestFeatures
 {
     IFeatureState Feature1 { get; }
     IFeatureState Feature2 { get; }
+
     ISubSection SubSection { get; }
 }
 ";
@@ -101,8 +103,10 @@ partial class TestFeatures : ITestFeatures
         _featureReader = featureReader;
         SubSection = new SubSection(_featureReader);
     }
+
     public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
     public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
+
     public ISubSection SubSection { get; }
 }
 ";
@@ -118,8 +122,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {{
+    [FeatureGroup]
     private static readonly {arrayType}[] _availableFeatures = {{
         ""Feature1"",
         ""Feature2""
@@ -141,13 +146,39 @@ public partial class TestFeatures {{
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests {
-    [FeatureAccessDefinition(nameof(_availableFeatures))]
+    [FeatureAccessDefinition]
     public partial class TestFeatures {
+        [FeatureGroup]
         private static readonly string[] _availableFeatures = {
             ""Feature1"",
             ""Feature2""
         };
     }
+}
+";
+
+        var (diagnostics, resultedCode) = await RunAsync(code);
+
+        diagnostics.Length.Should().Be(0);
+        resultedCode.Length.Should().Be(2);
+        resultedCode[0].SourceText.ToString().Should().Be(_interfaceWithTwoProperties);
+        resultedCode[1].SourceText.ToString().Should().Be(_classWithTwoProperties);
+    }
+
+    [Fact]
+    public async Task SourceFile_WithAValidClass_WithInternalField_GeneratesCode_WithTwoProperties() {
+        const string code = @"
+using StronglyTyped.FeatureFlags;
+
+namespace SourceGeneration.Tests;
+
+[FeatureAccessDefinition]
+public partial class TestFeatures {
+    [FeatureGroup]
+    internal static readonly string[] _availableFeatures = {
+        ""Feature1"",
+        ""Feature2""
+    };
 }
 ";
 
@@ -166,8 +197,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2"",
@@ -189,8 +221,9 @@ public partial class TestFeatures {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -212,6 +245,7 @@ using StronglyTyped.FeatureFlags;
 namespace SourceGeneration.Tests;
 
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -234,6 +268,7 @@ namespace SourceGeneration.Tests;
 
 [Obsolete]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -248,34 +283,15 @@ public partial class TestFeatures {
     }
 
     [Fact]
-    public async Task SourceFile_WithAValidClass_WithAProperty_GeneratesCode_WithNoProperties() {
-        const string code = @"
-using StronglyTyped.FeatureFlags;
-
-namespace SourceGeneration.Tests;
-
-[FeatureAccessDefinition(""_availableFeatures"")]
-public partial class TestFeatures {
-    public static string[] AvailableFeatures { get; }
-}
-";
-
-        var (diagnostics, resultedCode) = await RunAsync(code);
-
-        diagnostics.Length.Should().Be(1);
-        diagnostics[0].Descriptor.Description.ToString().Should().Contain("A field with name '_availableFeatures' was not found.");
-        resultedCode.Length.Should().Be(0);
-    }
-
-    [Fact]
     public async Task SourceFile_WithAValidClass_WithAPublicField_GeneratesCode_WithNoProperties() {
         const string code = @"
 using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     public static readonly string[] _availableFeatures = {
         ""Feature1"",
         ""Feature2""
@@ -286,7 +302,7 @@ public partial class TestFeatures {
         var (diagnostics, resultedCode) = await RunAsync(code);
 
         diagnostics.Length.Should().Be(1);
-        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' must be private.");
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The feature group must be private or internal.");
         resultedCode.Length.Should().Be(0);
     }
 
@@ -297,8 +313,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static string _availableFeatures;
 }
 ";
@@ -306,7 +323,7 @@ public partial class TestFeatures {
         var (diagnostics, resultedCode) = await RunAsync(code);
 
         diagnostics.Length.Should().Be(1);
-        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' field must be a string array.");
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The feature group field must be a string array.");
         resultedCode.Length.Should().Be(0);
     }
 
@@ -317,8 +334,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {{
+    [FeatureGroup]
     private static readonly string[] _availableFeatures;
 }}
 ";
@@ -338,8 +356,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly int[] _availableFeatures = {
         1,
         2
@@ -350,7 +369,7 @@ public partial class TestFeatures {
         var (diagnostics, resultedCode) = await RunAsync(code);
 
         diagnostics.Length.Should().Be(1);
-        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The '_availableFeatures' field must be a string array.");
+        diagnostics[0].Descriptor.Description.ToString().Should().Contain("The feature group field must be a string array.");
         resultedCode.Length.Should().Be(0);
     }
 
@@ -361,8 +380,9 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
+    [FeatureGroup]
     private static readonly String[] _availableFeatures = {
     };
 }
@@ -383,10 +403,11 @@ using StronglyTyped.FeatureFlags;
 
 namespace SourceGeneration.Tests;
 
-[FeatureAccessDefinition(nameof(_availableFeatures))]
+[FeatureAccessDefinition]
 public partial class TestFeatures {
     private const string _feature3 = ""Feature3"";
 
+    [FeatureGroup]
     private static readonly String[] _availableFeatures = {
          ""Feature1"",
         ""Feature2""
