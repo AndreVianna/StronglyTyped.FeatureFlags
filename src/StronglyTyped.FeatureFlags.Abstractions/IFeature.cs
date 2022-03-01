@@ -2,7 +2,7 @@
 namespace StronglyTyped.FeatureFlags;
 
 public interface IFeature : IFeatureState {
-    string Name { get; }
+    string[] Path { get; }
     Type ProviderType { get; }
     FeatureStateLifecycle Lifecycle { get; }
 }

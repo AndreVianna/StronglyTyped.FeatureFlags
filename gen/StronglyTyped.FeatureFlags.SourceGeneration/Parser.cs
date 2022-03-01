@@ -4,7 +4,7 @@ internal class Parser {
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
 
-    internal static FeaturesSectionDefinition? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) {
+    internal static SectionDefinition? GetSemanticTargetForGeneration(GeneratorSyntaxContext context) {
         var classDeclaration = (ClassDeclarationSyntax)context.Node;
         if (!TryCreateSectionDefinition(context, classDeclaration, out var featureSectionDefinition)) return null;
 
@@ -24,7 +24,7 @@ internal class Parser {
 
     }
 
-    private static void AddFeatures(VariableDeclaratorSyntax variable, FeaturesSectionDefinition definition, IEnumerable<string> groupPath) {
+    private static void AddFeatures(VariableDeclaratorSyntax variable, SectionDefinition definition, IEnumerable<string> groupPath) {
         var arrayItems = variable.Initializer!.Value.ChildNodes();
         foreach (var arrayItem in arrayItems) {
             if (arrayItem is LiteralExpressionSyntax literal)
@@ -32,7 +32,7 @@ internal class Parser {
         }
     }
 
-    private static void AddSections(VariableDeclaratorSyntax variable, FeaturesSectionDefinition definition) {
+    private static void AddSections(VariableDeclaratorSyntax variable, SectionDefinition definition) {
         var arrayItems = variable.Initializer!.Value.ChildNodes();
         foreach (var arrayItem in arrayItems) {
             if (arrayItem is InvocationExpressionSyntax {Expression: IdentifierNameSyntax} invocation)
@@ -54,13 +54,13 @@ internal class Parser {
         return boundAttributes.ConstructorArguments.First().Values.Select(i => i.Value).Cast<string>().ToArray();
     }
 
-    private static bool TryCreateSectionDefinition(GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclaration, out FeaturesSectionDefinition featuresSectionDefinition) {
-        featuresSectionDefinition = default!;
+    private static bool TryCreateSectionDefinition(GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclaration, out SectionDefinition sectionDefinition) {
+        sectionDefinition = default!;
         var (@namespace, className) = Parser.ExtractClassDefinition(classDeclaration);
         if (@namespace is null) return false;
         if (!HasAttribute<FeaturesSectionDefinitionAttribute>(context, classDeclaration)) return false;
         var basePath = GetPathFrom<FeaturesSectionDefinitionAttribute>(context, classDeclaration);
-        featuresSectionDefinition = new FeaturesSectionDefinition(@namespace, className, basePath);
+        sectionDefinition = new SectionDefinition(@namespace, className, basePath);
         return true;
     }
 

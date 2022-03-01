@@ -51,7 +51,7 @@ public sealed class FeatureReaderTests : IDisposable {
 
         // Assert
         result.IsEnabled.Should().Be(previous.IsEnabled);
-        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature2)", "Dispose");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetFromPathOrDefault(Feature2)", "Dispose");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class FeatureReaderTests : IDisposable {
 
         // Assert
         result.IsEnabled.Should().BeTrue();
-        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature3)", "Dispose");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetFromPathOrDefault(Feature3)", "Dispose");
     }
 
     [Fact]
@@ -93,6 +93,6 @@ public sealed class FeatureReaderTests : IDisposable {
 
         // Assert
         result.IsEnabled.Should().BeFalse();
-        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetByNameOrDefault(Feature8)", "Dispose");
+        _processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetFromPathOrDefault(Feature8)", "Dispose");
     }
 }

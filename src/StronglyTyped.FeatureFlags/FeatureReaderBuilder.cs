@@ -23,21 +23,35 @@ public sealed class FeatureReaderBuilder : IFeatureReaderBuilderOptions {
         var features = provider.GetAll().ToArray();
         EnsureFeatureUniqueness<TProvider>(features);
         foreach (var feature in features) {
-            FeatureReader.Features.Add(new Feature(feature.Name, typeof(TProvider), feature.Lifecycle, feature.IsEnabled));
-            if (feature.Lifecycle == FeatureStateLifecycle.Static) FeatureReader.StaticFlags.Add(feature.Name, feature);
+            FeatureReader.Features.Add(new Feature(feature.Path, typeof(TProvider), feature.Lifecycle, feature.IsEnabled));
+            if (feature.Lifecycle == FeatureStateLifecycle.Static) FeatureReader.StaticFlags.Add(FeatureReader.SerializePath(feature.Path), feature);
         }
+    }
+
+    private class FeatureComparer : IEqualityComparer<string[]> {
+
+        private FeatureComparer() {
+            
+        }
+
+        internal static FeatureComparer Default => new FeatureComparer();
+        public bool Equals(string[]? x, string[]? y) {
+            return ReferenceEquals(x, y) || x != null && y != null && x.SequenceEqual(y);
+        }
+
+        public int GetHashCode(string[] obj) => obj.Aggregate(0, HashCode.Combine);
     }
 
     private static void EnsureFeatureUniqueness<TProvider>(IEnumerable<IFeature> features) where TProvider : class, IFeatureProvider {
         var duplicatedFeatures = FeatureReader.Features
-            .Join(features, e => e.Name, f => f.Name, (i, _) => i)
+            .Join(features, e => e.Path, f => f.Path, (i, _) => i, FeatureComparer.Default)
             .GroupBy(i => i.ProviderType).ToArray();
         if (duplicatedFeatures.Length == 0) return;
 
         var message = new StringBuilder();
         message.Append($"Duplicated feature(s) found while registering the  '{typeof(TProvider).Name}' provider:\r\n");
         foreach (var group in duplicatedFeatures) {
-            var featureList = string.Join(", ", group.Select(i => $"'{i.Name}'"));
+            var featureList = string.Join(", ", group.Select(i => $"'{string.Join(".", i.Path)}'"));
             message.Append($"\t{featureList} found in '{group.Key.Name}' provider.\r\n");
         }
         throw new InvalidOperationException(message.ToString());

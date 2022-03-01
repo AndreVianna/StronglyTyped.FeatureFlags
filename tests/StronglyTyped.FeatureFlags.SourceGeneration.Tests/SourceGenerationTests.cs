@@ -65,8 +65,8 @@ partial class TestFeatures : ITestFeatures
         _featureReader = featureReader;
     }
 
-    public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
-    public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
+    public IFeatureState Feature1 => _featureReader.For(""Feature1"");
+    public IFeatureState Feature2 => _featureReader.For(""Feature2"");
 }
 ";
 
@@ -104,8 +104,8 @@ partial class TestFeatures : ITestFeatures
         SubSection = new SubSection(_featureReader);
     }
 
-    public IFeatureState Feature1 => _featureReader.For(nameof(Feature1));
-    public IFeatureState Feature2 => _featureReader.For(nameof(Feature2));
+    public IFeatureState Feature1 => _featureReader.For(""Feature1"");
+    public IFeatureState Feature2 => _featureReader.For(""Feature2"");
 
     public ISubSection SubSection { get; }
 }

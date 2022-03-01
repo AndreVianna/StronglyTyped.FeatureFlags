@@ -20,10 +20,10 @@ internal class InMemoryProviderSpy : IFeatureProvider {
         return _features;
     }
 
-    public IFeature? GetByNameOrDefault(string featureName) {
-        _processSpy.RegisterCall($"GetByNameOrDefault({featureName})");
-        return featureName is "Feature7" or "Feature8"
+    public IFeature? GetFromPathOrDefault(params string[] path) {
+        _processSpy.RegisterCall($"GetFromPathOrDefault({string.Join(", ", path)})");
+        return path.SequenceEqual(new [] { "Feature7" }) || path.SequenceEqual(new[] { "Feature8" })
             ? null // Simulates removed transient feature
-            : _features.FirstOrDefault(i => i.Name == featureName);
+            : _features.FirstOrDefault(i => i.Path.SequenceEqual(path));
     }
 }

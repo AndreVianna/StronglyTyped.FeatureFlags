@@ -2,5 +2,5 @@
 namespace StronglyTyped.FeatureFlags;
 
 public interface IFeatureReader {
-    IFeatureState For(string featureName);
+    IFeatureState For(params string[] path);
 }

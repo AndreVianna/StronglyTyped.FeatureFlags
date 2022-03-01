@@ -1,7 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 [Generator]
-public class FeatureAccessGenerator : IIncrementalGenerator {
+public class FeaturesGenerator : IIncrementalGenerator {
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         var flagsSelectorClasses = context.SyntaxProvider
@@ -14,7 +14,7 @@ public class FeatureAccessGenerator : IIncrementalGenerator {
         context.RegisterSourceOutput(flagsSelectorClasses, static (spc, source) => GenerateFiles(spc, source!));
     }
 
-    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<FeaturesSectionDefinition> selectors) {
+    internal static void GenerateFiles(SourceProductionContext context, ImmutableArray<SectionDefinition> selectors) {
         if (selectors.Length == 0)
             return;
 

@@ -19,6 +19,10 @@
     },
     "Feature7": {
       "Invalid": "Invalid"
+    },
+    "SubFeatures": {
+      "Feature101": true,
+      "Feature102": false
     }
   },
   "OtherFeatures": {

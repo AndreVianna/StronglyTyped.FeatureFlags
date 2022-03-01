@@ -1,7 +1,7 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
-internal class FeaturesSectionDefinition {
-    public FeaturesSectionDefinition(string @namespace, string className, IEnumerable<string> path) {
+internal class SectionDefinition {
+    public SectionDefinition(string @namespace, string className, IEnumerable<string> path) {
         Namespace = @namespace;
         ClassName = className;
         Path = path;

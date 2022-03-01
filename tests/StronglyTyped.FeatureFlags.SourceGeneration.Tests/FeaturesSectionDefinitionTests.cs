@@ -5,7 +5,7 @@ public class FeaturesSectionDefinitionTests {
     [Fact]
     public void FeaturesSectionDefinition_Properties_AreDefinedInTheConstructor() {
         // Act
-        var definition = new FeaturesSectionDefinition("SomeNamespace", "SomeName", new[] { "Root", "Child" });
+        var definition = new SectionDefinition("SomeNamespace", "SomeName", new[] { "Root", "Child" });
 
         // Assert
         definition.Namespace.Should().Be("SomeNamespace");

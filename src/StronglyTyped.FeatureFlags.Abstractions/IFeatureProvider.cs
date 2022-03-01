@@ -2,6 +2,6 @@
 namespace StronglyTyped.FeatureFlags;
 
 public interface IFeatureProvider : IDisposable {
-    IFeature? GetByNameOrDefault(string featureName);
+    IFeature? GetFromPathOrDefault(params string[] path);
     IEnumerable<IFeature> GetAll();
 }

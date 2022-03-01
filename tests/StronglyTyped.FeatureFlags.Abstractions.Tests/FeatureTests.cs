@@ -5,18 +5,18 @@ public class FeatureTests {
     [Fact]
     public void Feature_IsARecord() {
         // Arrange
-        var feature = new Feature("SomeName", typeof(string), FeatureStateLifecycle.Transient, false);
+        var feature = new Feature(new[] { "SomeName" }, typeof(string), FeatureStateLifecycle.Transient, false);
 
         // Act
         feature = feature with {
-            Name = "OtherName",
+            Path = new[] { "OtherName" },
             ProviderType = typeof(int),
             Lifecycle = FeatureStateLifecycle.Static,
             IsEnabled = true,
         };
 
         // Assert
-        feature.Name.Should().Be("OtherName");
+        feature.Path.Should().BeEquivalentTo("OtherName");
         feature.ProviderType.Should().Be(typeof(int));
         feature.Lifecycle.Should().Be(FeatureStateLifecycle.Static);
         feature.IsEnabled.Should().BeTrue();
