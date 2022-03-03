@@ -27,8 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\gen\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj" />
-    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
+    <ProjectReference Include="..\..\generator\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj" />
+    <ProjectReference Include="..\..\source\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

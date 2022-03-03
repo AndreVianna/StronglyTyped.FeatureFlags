@@ -1,4 +1,4 @@
-﻿namespace StronglyTyped.FeatureFlags.Abstractions.Tests;
+﻿namespace StronglyTyped.FeatureFlags.Tests;
 
 [ExcludeFromCodeCoverage]
 public class FeaturesSectionDefinitionAttributeTests {

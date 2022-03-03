@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
+    <ProjectReference Include="..\..\providers\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

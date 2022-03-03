@@ -1,6 +1,11 @@
 ﻿namespace StronglyTyped.FeatureFlags.SourceGeneration;
 
 internal class Parser {
+
+    private const string _featuresAttribute = "StronglyTyped.FeatureFlags.FeaturesAttribute";
+    private const string _sectionsAttribute = "StronglyTyped.FeatureFlags.SectionsAttribute";
+    private const string _featuresSectionsDefinitionAttribute = "StronglyTyped.FeatureFlags.FeaturesSectionDefinitionAttribute";
+
     internal static bool IsSyntaxTargetForGeneration(SyntaxNode node) =>
         node is ClassDeclarationSyntax { AttributeLists.Count: > 0 };
 
@@ -9,12 +14,12 @@ internal class Parser {
         if (!TryCreateSectionDefinition(context, classDeclaration, out var featureSectionDefinition)) return null;
 
         foreach (var field in classDeclaration.Members.OfType<FieldDeclarationSyntax>()) {
-            if (HasAttribute<FeaturesAttribute>(context, field)) {
+            if (HasAttribute(context, field, _featuresAttribute)) {
                 if (!IsFieldValid(field, featureSectionDefinition)) continue;
                 foreach (var variable in field.Declaration.Variables.Where(v => v.Initializer is not null))
-                    AddFeatures(variable, featureSectionDefinition, GetPathFrom<FeaturesAttribute>(context, variable));
+                    AddFeatures(variable, featureSectionDefinition, GetPathFrom(context, variable, _featuresAttribute));
             }
-            else if (HasAttribute<SectionsAttribute>(context, field)) {
+            else if (HasAttribute(context, field, _sectionsAttribute)) {
                 if (!IsFieldValid(field, featureSectionDefinition)) continue;
                 foreach (var variable in field.Declaration.Variables.Where(v => v.Initializer is not null))
                     AddSections(variable, featureSectionDefinition);
@@ -66,16 +71,16 @@ internal class Parser {
     private static DiagnosticDescriptor CreateWarning(string id, string title, string message)
         => new(id, title, message, "Code", DiagnosticSeverity.Warning, true, message);
 
-    private static bool HasAttribute<T>(GeneratorSyntaxContext context, MemberDeclarationSyntax member)
-        => member.AttributeLists.SelectMany(i => i.Attributes).Any(attribute => ContainingTypeIs<T>(context, attribute));
+    private static bool HasAttribute(GeneratorSyntaxContext context, MemberDeclarationSyntax member, string attributeTypeName)
+        => member.AttributeLists.SelectMany(i => i.Attributes).Any(attribute => ContainingTypeIs(context, attribute, attributeTypeName));
 
-    private static bool ContainingTypeIs<T>(GeneratorSyntaxContext context, SyntaxNode attribute) =>
+    private static bool ContainingTypeIs(GeneratorSyntaxContext context, SyntaxNode attribute, string attributeTypeName) =>
         context.SemanticModel.GetSymbolInfo(attribute).Symbol is IMethodSymbol attributeConstructor &&
-        attributeConstructor.ContainingType.ToDisplayString() == typeof(T).FullName;
+        attributeConstructor.ContainingType.ToDisplayString() == attributeTypeName;
 
-    private static IEnumerable<string> GetPathFrom<T>(GeneratorSyntaxContext context, SyntaxNode member) {
+    private static IEnumerable<string> GetPathFrom(GeneratorSyntaxContext context, SyntaxNode member, string attributeTypeName) {
         var symbol = context.SemanticModel.GetDeclaredSymbol(member)!;
-        var constructorName = typeof(T).FullName.Split('.').Last();
+        var constructorName = attributeTypeName.Split('.').Last();
         var boundAttributes = symbol.GetAttributes().First(i => i.AttributeClass!.Name == constructorName);
         return boundAttributes.ConstructorArguments.First().Values.OfType<string>().ToArray();
     }
@@ -84,8 +89,8 @@ internal class Parser {
         sectionDefinition = default!;
         var (@namespace, className) = Parser.ExtractClassDefinition(classDeclaration);
         if (@namespace is null) return false;
-        if (!HasAttribute<FeaturesSectionDefinitionAttribute>(context, classDeclaration)) return false;
-        var basePath = GetPathFrom<FeaturesSectionDefinitionAttribute>(context, classDeclaration);
+        if (!HasAttribute(context, classDeclaration, _featuresSectionsDefinitionAttribute)) return false;
+        var basePath = GetPathFrom(context, classDeclaration, _featuresSectionsDefinitionAttribute);
         sectionDefinition = new SectionDefinition(@namespace, className, basePath);
         return true;
     }

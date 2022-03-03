@@ -20,9 +20,9 @@
       </ItemGroup>
 
       <ItemGroup>
-        <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj" />
-        <ProjectReference Include="..\..\src\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
-        <ProjectReference Include="..\..\gen\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\..\source\StronglyTyped.FeatureFlags\StronglyTyped.FeatureFlags.csproj" />
+        <ProjectReference Include="..\..\providers\StronglyTyped.FeatureFlags.Providers.Configuration\StronglyTyped.FeatureFlags.Providers.Configuration.csproj" />
+        <ProjectReference Include="..\..\generator\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
       </ItemGroup>
 
     </When>
