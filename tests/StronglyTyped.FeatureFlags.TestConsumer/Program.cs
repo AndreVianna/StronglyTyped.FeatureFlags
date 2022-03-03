@@ -19,8 +19,7 @@ static IServiceProvider CreateServiceProvider() {
         .Build();
 
     services.AddSingleton<IConfiguration>(_ => config);
-    services.AddFeatureFlags(opt => opt.TryAddProvider<ConfigurationFeatureProvider>());
-    services.AddScoped<IFeatures, Features>();
+    services.AddFeatureFlagsFrom<Program>(opt => opt.TryAddProvider<ConfigurationFeatureProvider>());
 
     return services.BuildServiceProvider(true).CreateScope().ServiceProvider;
 }

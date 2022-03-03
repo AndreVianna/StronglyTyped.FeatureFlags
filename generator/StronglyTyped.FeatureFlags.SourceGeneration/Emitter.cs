@@ -7,6 +7,14 @@ internal class Emitter {
     internal void EmitFiles(SourceProductionContext context, IReadOnlyList<SectionDefinition> definitions) {
         foreach (var definition in definitions) {
             context.CancellationToken.ThrowIfCancellationRequested();
+
+            if (definition.Problems.Any()) {
+                foreach (var error in definition.Problems)
+                    context.ReportDiagnostic(error.Diagnostic);
+            }
+
+            if (definition.Problems.Any(p => p.BlocksFileGeneration)) continue;
+
             var interfaceCode = EmitInterface(definition);
             context.AddSource($"I{definition.ClassName}.g.cs", SourceText.From(interfaceCode, Encoding.UTF8));
 

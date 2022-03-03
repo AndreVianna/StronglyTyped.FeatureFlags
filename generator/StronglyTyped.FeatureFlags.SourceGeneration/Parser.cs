@@ -10,12 +10,12 @@ internal class Parser {
 
         foreach (var field in classDeclaration.Members.OfType<FieldDeclarationSyntax>()) {
             if (HasAttribute<FeaturesAttribute>(context, field)) {
-                ValidateField(field);
+                if (!IsFieldValid(field, featureSectionDefinition)) continue;
                 foreach (var variable in field.Declaration.Variables.Where(v => v.Initializer is not null))
                     AddFeatures(variable, featureSectionDefinition, GetPathFrom<FeaturesAttribute>(context, variable));
             }
             else if (HasAttribute<SectionsAttribute>(context, field)) {
-                ValidateField(field);
+                if (!IsFieldValid(field, featureSectionDefinition)) continue;
                 foreach (var variable in field.Declaration.Variables.Where(v => v.Initializer is not null))
                     AddSections(variable, featureSectionDefinition);
             }
@@ -25,20 +25,46 @@ internal class Parser {
     }
 
     private static void AddFeatures(VariableDeclaratorSyntax variable, SectionDefinition definition, IEnumerable<string> groupPath) {
-        var arrayItems = variable.Initializer!.Value.ChildNodes();
-        foreach (var arrayItem in arrayItems) {
-            if (arrayItem is LiteralExpressionSyntax literal)
-                definition.Features.Add((groupPath, literal.ChildTokens().First().ValueText));
+        var path = groupPath.ToArray();
+        var arrayItems = variable.Initializer!.Value.ChildNodes().ToArray();
+        foreach (var arrayItem in arrayItems)
+            AddFeatureOrProblem(definition, arrayItem, path);
+    }
+
+    private static void AddFeatureOrProblem(SectionDefinition definition, SyntaxNode arrayItem, IEnumerable<string> path) {
+        if (arrayItem is LiteralExpressionSyntax literal) {
+            definition.Features.Add((path, literal.ChildTokens().First().ValueText));
+            return;
         }
+
+        var warning = CreateWarning(
+            "FG003",
+            "Invalid feature name definition.",
+            "The feature name must be a string literal. Instead found '{0}'.");
+        definition.Problems.Add((Diagnostic.Create(warning, arrayItem.GetLocation(), arrayItem.ToString()), false));
     }
 
     private static void AddSections(VariableDeclaratorSyntax variable, SectionDefinition definition) {
         var arrayItems = variable.Initializer!.Value.ChildNodes();
-        foreach (var arrayItem in arrayItems) {
-            if (arrayItem is InvocationExpressionSyntax {Expression: IdentifierNameSyntax} invocation)
-                definition.Sections.Add(invocation.ArgumentList.Arguments[0].ToString());
-        }
+        foreach (var arrayItem in arrayItems)
+            AddSectionOrProblem(definition, arrayItem);
     }
+
+    private static void AddSectionOrProblem(SectionDefinition definition, SyntaxNode arrayItem) {
+        if (arrayItem is InvocationExpressionSyntax { Expression: IdentifierNameSyntax } invocation) {
+            definition.Sections.Add(invocation.ArgumentList.Arguments[0].ToString());
+            return;
+        }
+
+        var warning = CreateWarning(
+            "FG004", 
+            "Invalid section name definition.", 
+            "The section name must use 'nameof' keyword. Instead found '{0}'.");
+        definition.Problems.Add((Diagnostic.Create(warning, arrayItem.GetLocation(), arrayItem.ToString()), false));
+    }
+
+    private static DiagnosticDescriptor CreateWarning(string id, string title, string message)
+        => new(id, title, message, "Code", DiagnosticSeverity.Warning, true, message);
 
     private static bool HasAttribute<T>(GeneratorSyntaxContext context, MemberDeclarationSyntax member)
         => member.AttributeLists.SelectMany(i => i.Attributes).Any(attribute => ContainingTypeIs<T>(context, attribute));
@@ -51,10 +77,10 @@ internal class Parser {
         var symbol = context.SemanticModel.GetDeclaredSymbol(member)!;
         var constructorName = typeof(T).FullName.Split('.').Last();
         var boundAttributes = symbol.GetAttributes().First(i => i.AttributeClass!.Name == constructorName);
-        return boundAttributes.ConstructorArguments.First().Values.Select(i => i.Value).Cast<string>().ToArray();
+        return boundAttributes.ConstructorArguments.First().Values.OfType<string>().ToArray();
     }
 
-    private static bool TryCreateSectionDefinition(GeneratorSyntaxContext context, ClassDeclarationSyntax classDeclaration, out SectionDefinition sectionDefinition) {
+    private static bool TryCreateSectionDefinition(GeneratorSyntaxContext context, BaseTypeDeclarationSyntax classDeclaration, out SectionDefinition sectionDefinition) {
         sectionDefinition = default!;
         var (@namespace, className) = Parser.ExtractClassDefinition(classDeclaration);
         if (@namespace is null) return false;
@@ -64,11 +90,25 @@ internal class Parser {
         return true;
     }
 
-    private static void ValidateField(FieldDeclarationSyntax field) {
-        if (field.Declaration.Type is not ArrayTypeSyntax arrayType || !IsString(arrayType.ElementType))
-            throw new InvalidOperationException($"The feature group field must be a string array.");
-        if (field.Modifiers.All(i => i.Text is not "private"))
-            throw new InvalidOperationException($"The feature group must be private.");
+    private static bool IsFieldValid(BaseFieldDeclarationSyntax field, SectionDefinition definition) {
+        var foundError = false;
+        if (field.Declaration.Type is not ArrayTypeSyntax arrayType || !IsString(arrayType.ElementType)) {
+            var warning = CreateWarning(
+                "FG001", 
+                "Invalid field type.", 
+                "The selected field must be a string array.");
+            definition.Problems.Add((Diagnostic.Create(warning, field.Declaration.GetLocation()), true));
+            foundError = true;
+        }
+        if (field.Modifiers.All(i => i.Text is not "private")) {
+            var warning = CreateWarning(
+                "FG002", 
+                "Invalid field modifier.",
+                "The selected field must be private.");
+            definition.Problems.Add((Diagnostic.Create(warning, field.Modifiers.First().GetLocation()), true));
+            foundError = true;
+        }
+        return !foundError;
     }
 
     internal static (string?, string) ExtractClassDefinition(BaseTypeDeclarationSyntax classDeclaration) {

@@ -45,7 +45,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
       </ItemGroup>
       <ItemGroup>
-        <ProjectReference Include="..\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
+        <ProjectReference Include="..\..\source\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
       </ItemGroup>
     </When>
     <When Condition=" '$(Configuration)'=='Release' ">

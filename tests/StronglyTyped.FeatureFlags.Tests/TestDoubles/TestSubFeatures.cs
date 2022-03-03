@@ -1,13 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace StronglyTyped.FeatureFlags.Tests.TestDoubles;
 
-namespace StronglyTyped.FeatureFlags.TestConsumer;
-
+[ExcludeFromCodeCoverage]
 [FeaturesSectionDefinition]
-public partial class SubFeatures {
+public partial class TestSubFeatures {
     [Features]
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for code generation")]
     private static readonly string[] _features = {
-        "Feature1",
-        "Feature2",
+        "Feature3",
+        "Feature4",
     };
 }

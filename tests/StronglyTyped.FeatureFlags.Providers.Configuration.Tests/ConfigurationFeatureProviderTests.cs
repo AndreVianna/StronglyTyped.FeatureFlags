@@ -8,8 +8,8 @@ public class ConfigurationFeatureProviderTests {
         _subConfiguration = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
     }
 
-    private ConfigurationFeatureProvider CreateProvider(params string[] section)
-        => new(_subConfiguration, section);
+    private ConfigurationFeatureProvider CreateProvider()
+        => new(_subConfiguration);
 
     [Fact]
     public void GetAll_ReturnsAllFeatures() {
@@ -34,7 +34,7 @@ public class ConfigurationFeatureProviderTests {
     [Fact]
     public void GetAll_WithAlternativeSection_ReturnsOtherFeatures() {
         // Arrange
-        var provider = CreateProvider("OtherFeatures");
+        var provider = new ConfigurationFeatureProvider(_subConfiguration, "OtherFeatures");
         var expectedFeatures = new[] {
             new Feature(new[] { "FeatureA" }, typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, true),
             new Feature(new[] { "FeatureB" }, typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, false),
@@ -48,9 +48,9 @@ public class ConfigurationFeatureProviderTests {
     }
 
     [Fact]
-    public void GetAll_WithNonExistingSection_ReturnsEmpty() {
+    public void GetAll_WithNonExistingBaseSection_ReturnsEmpty() {
         // Arrange
-        var provider = CreateProvider("Invalid");
+        var provider = new ConfigurationFeatureProvider(_subConfiguration, "Invalid");
 
         // Act
         var result = provider.GetAll();
@@ -96,12 +96,37 @@ public class ConfigurationFeatureProviderTests {
     }
 
     [Fact]
-    public void GetFromPath_ForNonExistingSection_ReturnsNull() {
+    public void GetFromPath_ForNonExistingBaseSection_ReturnsNull() {
         // Arrange
-        var provider = CreateProvider("Invalid");
+        var provider = new ConfigurationFeatureProvider(_subConfiguration, "Invalid");
 
         // Act
         var result = provider.GetFromPathOrDefault("Feature1");
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetFromPath_ForNonExistingSection_ReturnsNull() {
+        // Arrange
+        var provider = CreateProvider();
+
+        // Act
+        var result = provider.GetFromPathOrDefault("Invalid", "Feature1");
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+
+    [Fact]
+    public void GetFromPath_ForNonExistingDescendant_ReturnsNull() {
+        // Arrange
+        var provider = CreateProvider();
+
+        // Act
+        var result = provider.GetFromPathOrDefault("SubFeatures", "Invalid");
 
         // Assert
         result.Should().BeNull();

@@ -4,24 +4,23 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
     private readonly string _basePath;
     private readonly IConfigurationSection _featuresSection;
 
+    public ConfigurationFeatureProvider(IConfiguration config) : this(config, Array.Empty<string>()) {
+    }
+
     public ConfigurationFeatureProvider(IConfiguration config, params string[] basePath) {
         _basePath = basePath.Any() ? string.Join(":", basePath) : "Features";
         _featuresSection = config.GetSection(_basePath);
     }
 
     public IEnumerable<IFeature> GetAll() {
-        if (!_featuresSection.Exists())
-            return Array.Empty<IFeature>();
-
+        if (!_featuresSection.Exists()) return Array.Empty<IFeature>();
         var result = new List<IFeature>();
         AddDescendants(_featuresSection, result);
         return result.ToArray();
     }
 
     public IFeature? GetFromPathOrDefault(params string[] path) {
-        if (!_featuresSection.Exists())
-            return null;
-
+        if (!_featuresSection.Exists()) return null;
         var key = string.Join(":", path);
         var child = _featuresSection.GetSection(key);
         return TryGetFeature(child, out var feature) ? feature : null;
@@ -30,7 +29,6 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
     public void Dispose() { }
 
     private void AddDescendants(IConfigurationSection section, ICollection<IFeature> features) {
-        if (!section.Exists()) return;
         if (TryGetFeature(section, out var feature)) {
             features.Add(feature);
             return;
@@ -45,22 +43,18 @@ public sealed class ConfigurationFeatureProvider : IFeatureProvider {
         feature = default!;
         if (!section.Exists()) return false;
         if (bool.TryParse(section.Value, out var sectionValue)) {
-            var featurePath = GetFeaturePath(section);
-            feature = new Feature(featurePath, typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, sectionValue);
+            feature = new Feature(GetFeaturePath(section), typeof(ConfigurationFeatureProvider), FeatureStateLifecycle.Static, sectionValue);
             return true;
         }
         if (bool.TryParse(section["IsEnabled"], out var isEnabled)) {
-            var lifecycle = GetFlagType(section);
-            var featurePath = GetFeaturePath(section);
-            feature = new Feature(featurePath, typeof(ConfigurationFeatureProvider), lifecycle, isEnabled);
+            feature = new Feature(GetFeaturePath(section), typeof(ConfigurationFeatureProvider), GetFlagType(section), isEnabled);
             return true;
         }
         return false;
     }
 
     private string[] GetFeaturePath(IConfigurationSection section) {
-        var featurePath = section.Path.StartsWith(_basePath) ? section.Path.Remove(0, _basePath.Length + 1) : section.Path;
-        return featurePath.Split(":");
+        return section.Path.Remove(0, _basePath.Length + 1).Split(":"); ;
     }
 
     private static FeatureStateLifecycle GetFlagType(IConfiguration section) {

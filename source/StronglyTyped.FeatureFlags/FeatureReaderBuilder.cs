@@ -29,16 +29,9 @@ public sealed class FeatureReaderBuilder : IFeatureReaderBuilderOptions {
     }
 
     private class FeatureComparer : IEqualityComparer<string[]> {
-
-        private FeatureComparer() {
-            
-        }
-
-        internal static FeatureComparer Default => new FeatureComparer();
-        public bool Equals(string[]? x, string[]? y) {
-            return ReferenceEquals(x, y) || x != null && y != null && x.SequenceEqual(y);
-        }
-
+        private FeatureComparer() { }
+        internal static FeatureComparer Default => new();
+        public bool Equals(string[]? x, string[]? y) => x!.SequenceEqual(y!);
         public int GetHashCode(string[] obj) => obj.Aggregate(0, HashCode.Combine);
     }
 

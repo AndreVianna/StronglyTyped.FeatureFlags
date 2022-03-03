@@ -47,6 +47,7 @@
 
       <ItemGroup>
         <ProjectReference Include="..\StronglyTyped.FeatureFlags.Abstractions\StronglyTyped.FeatureFlags.Abstractions.csproj" />
+        <ProjectReference Include="..\..\generator\StronglyTyped.FeatureFlags.SourceGeneration\StronglyTyped.FeatureFlags.SourceGeneration.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
       </ItemGroup>
     </When>
     <When Condition=" '$(Configuration)'=='Release' ">

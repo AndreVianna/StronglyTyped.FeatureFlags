@@ -18,16 +18,22 @@ public sealed class ServiceCollectionExtensionsTests : IDisposable {
         var configWasCalled = false;
 
         // Act
-        services.AddFeatureFlags(opt => {
+        services.AddFeatureFlagsFrom<ServiceCollectionExtensionsTests>(opt => {
             opt.TryAddProvider<FakeProvider>();
             configWasCalled = true;
         });
 
+        // Assert
         using var serviceProvider = services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
-        var provider = scope.ServiceProvider.GetRequiredService<IFeatureReader>();
+        var provider = scope.ServiceProvider.GetService<IFeatureReader>();
+        provider.Should().NotBeNull();
 
-        // Assert
+        var features = scope.ServiceProvider.GetRequiredService<ITestFeatures>();
+        features.Should().NotBeNull();
+        var subFeatures = scope.ServiceProvider.GetRequiredService<ITestSubFeatures>();
+        subFeatures.Should().NotBeNull();
+
         configWasCalled.Should().BeTrue();
         processSpy.GetCalls().Should().BeEquivalentTo("Constructor", "GetAll", "Dispose");
         provider.Should().NotBeNull();
