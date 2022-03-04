@@ -12,5 +12,4 @@ internal class SectionDefinition {
     public IEnumerable<string> Path { get; }
     public ICollection<(IEnumerable<string> Path, string Name)> Features { get; } = new HashSet<(IEnumerable<string> Path, string Name)>();
     public ICollection<string> Sections { get; } = new HashSet<string>();
-    public ICollection<(Diagnostic Diagnostic, bool BlocksFileGeneration)> Problems { get; } = new HashSet<(Diagnostic Diagnostic, bool BlocksFileGeneration)>();
 }

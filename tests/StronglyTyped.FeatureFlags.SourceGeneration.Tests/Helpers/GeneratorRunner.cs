@@ -6,21 +6,19 @@ namespace StronglyTyped.FeatureFlags.SourceGeneration.Tests.Helpers;
 
 [ExcludeFromCodeCoverage]
 internal static class GeneratorRunner {
-    internal static async Task<(Diagnostic[], GeneratedSourceResult[])> RunAsync(string code) {
-        var runResult = await RunGeneratorAsync(
-            new FeaturesGenerator(),
-            new[] { typeof(FeaturesSectionDefinitionAttribute).Assembly },
-            new[] { code }).ConfigureAwait(false);
+    internal static async Task<GeneratedSourceResult[]> RunAsync(string code) {
+        var runResult = await RunGeneratorAsync(code).ConfigureAwait(false);
 
-        return (runResult.Diagnostics.ToArray(), runResult.GeneratedSources.ToArray());
+        return runResult.GeneratedSources.ToArray();
     }
 
-    private static async Task<GeneratorRunResult> RunGeneratorAsync(IIncrementalGenerator generator, IEnumerable<Assembly> references, IEnumerable<string> sources) {
-        var project = CreateTestProject(references).WithDocuments(sources);
+    private static async Task<GeneratorRunResult> RunGeneratorAsync(string code) {
+        var project = CreateTestProject(new[] { typeof(FeaturesSectionDefinitionAttribute).Assembly })
+            .WithDocuments(new[] { code });
         if (!project.Solution.Workspace.TryApplyChanges(project.Solution))
             throw new InvalidOperationException("Failed to create project.");
         var compilation = await project.GetCompilationAsync().ConfigureAwait(false);
-        return RunGenerator(compilation!, generator);
+        return RunGenerator(compilation!, new FeaturesGenerator());
     }
 
     private static Project CreateTestProject(IEnumerable<Assembly> references) {

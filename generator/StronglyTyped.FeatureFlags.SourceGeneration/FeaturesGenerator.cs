@@ -7,7 +7,7 @@ public class FeaturesGenerator : IIncrementalGenerator {
         var flagsSelectorClasses = context.SyntaxProvider
             .CreateSyntaxProvider(
                 static (sn, _) => Parser.IsSyntaxTargetForGeneration(sn),
-                static (ctx, _) => Parser.GetSemanticTargetForGeneration(ctx))
+                static (ctx, _) => Parser.CreateSectionDefinition(ctx))
             .Where(result => result is not null)
             .Collect();
 

@@ -13,6 +13,5 @@ public class FeaturesSectionDefinitionTests {
         definition.Path.Should().BeEquivalentTo("Root", "Child");
         definition.Features.Should().BeEmpty();
         definition.Sections.Should().BeEmpty();
-        definition.Problems.Should().BeEmpty();
     }
 }
